@@ -5,28 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Product Page</title>
 <style>
-body{margin:0;padding:0;font-family:Arial,sans-serif;background:#f4f4f4;}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f4f4;}
 header img{width:100%;height:auto;object-fit:cover;}
-#slider img{width:100%;display:none;height:250px;object-fit:cover;border-bottom:1px solid #ddd;}
+#slider img{width:100%;display:none;object-fit:cover;}
 #slider img.active{display:block;}
-.storage{margin:10px 0;}
-.storage select{padding:5px;width:150px;}
-.details{background:#fff;padding:10px;margin:10px;border-radius:5px;}
-.details .discount{color:green;font-weight:bold;}
-.details .oldPrice{color:gray;text-decoration:line-through;margin-right:5px;}
-#countdown{margin:10px 0;padding:5px;background:orange;color:#fff;border-radius:5px;display:inline-block;font-weight:bold;}
-.bottom-images{display:flex;gap:10px;margin:10px 0;}
-.bottom-images img{width:30%;border-radius:5px;object-fit:cover;}
-.buttons{position:fixed;bottom:0;left:0;width:100%;display:flex;}
-.buttons button{flex:1;padding:15px;font-size:16px;border:none;cursor:pointer;}
-#addCart{background:#ff3b3b;color:#fff;}
-#buyNow{background:yellow;color:#000;}
+.details{padding:10px;}
+.oldPrice{color:gray;text-decoration:line-through;margin-right:5px;}
+.newPrice{font-weight:bold;color:#000;}
+.discount{color:green;font-weight:bold;}
+.storage{padding:10px;}
+.bottom-images{display:flex;gap:5px;padding:10px;}
+.bottom-images img{width:32%;object-fit:cover;}
+.buttons{display:flex;gap:5px;padding:10px;position:fixed;bottom:0;width:100%;background:#fff;}
+#addCart{flex:1;background:#ff3b3b;color:#fff;padding:10px;border:none;border-radius:5px;cursor:pointer;}
+#buyNow{flex:1;background:#FFD700;color:#000;padding:10px;border:none;border-radius:5px;cursor:pointer;}
+#countdown{padding:10px;background:#FFA500;color:#fff;font-weight:bold;}
 </style>
 </head>
 <body>
 
 <header>
-  <img id="headerImage" src="https://via.placeholder.com/1200x200?text=Header+Image" alt="Header">
+  <img id="headerImage" src="" alt="Header">
 </header>
 
 <div id="slider"></div>
@@ -45,11 +44,7 @@ header img{width:100%;height:auto;object-fit:cover;}
 
 <div id="countdown">Time Left: <span id="timer">20:00</span></div>
 
-<div class="bottom-images" id="bottomImages">
-  <img src="https://via.placeholder.com/200x100?text=Image1" alt="Bottom1">
-  <img src="https://via.placeholder.com/200x100?text=Image2" alt="Bottom2">
-  <img src="https://via.placeholder.com/200x100?text=Image3" alt="Bottom3">
-</div>
+<div class="bottom-images" id="bottomImages"></div>
 
 <div class="buttons">
   <button id="addCart">Add to Cart</button>
@@ -57,21 +52,26 @@ header img{width:100%;height:auto;object-fit:cover;}
 </div>
 
 <script>
-// Load product details
+// Product ID
 const params = new URLSearchParams(window.location.search);
 const id = params.get('id') || 0;
 
+// Load product details
 const products = JSON.parse(localStorage.getItem('products')||'[]');
 const product = products[id] || {name:'Product', oldPrice:1000, newPrice:499, discount:50};
 
 const details = document.getElementById('productDetails');
 details.innerHTML = `
   <h2>${product.name}</h2>
-  <p><span class="oldPrice">₹${product.oldPrice}</span><span>₹${product.newPrice}</span></p>
+  <p><span class="oldPrice">₹${product.oldPrice}</span><span class="newPrice">₹${product.newPrice}</span></p>
   <p class="discount">${product.discount}% OFF</p>
 `;
 
-// Slider
+// Header image
+const headerImg = document.getElementById('headerImage');
+headerImg.src = localStorage.getItem('product_'+id+'_header') || 'https://via.placeholder.com/1200x200?text=Header+Image';
+
+// Slider images
 const sliderContainer = document.getElementById('slider');
 const sliderImages = JSON.parse(localStorage.getItem('product_'+id+'_slider')||'[]');
 if(sliderImages.length>0){
@@ -91,7 +91,7 @@ if(sliderImages.length>0){
 }
 
 // Countdown
-let countdown = 20*60;
+let countdown = parseInt(localStorage.getItem('product_'+id+'_timerMinutes')||20)*60;
 const timerEl = document.getElementById('timer');
 setInterval(()=>{
   const m = Math.floor(countdown/60);
@@ -101,6 +101,23 @@ setInterval(()=>{
   if(countdown<0) countdown=0;
 },1000);
 
+// Bottom images
+const bottomContainer = document.getElementById('bottomImages');
+const bottomImages = JSON.parse(localStorage.getItem('product_'+id+'_bottom')||'[]');
+if(bottomImages.length>0){
+  bottomImages.forEach(img=>{
+    const image = document.createElement('img');
+    image.src = img;
+    bottomContainer.appendChild(image);
+  });
+} else {
+  for(let i=1;i<=3;i++){
+    const img = document.createElement('img');
+    img.src = `https://via.placeholder.com/200x100?text=Image${i}`;
+    bottomContainer.appendChild(img);
+  }
+}
+
 // Buttons
 document.getElementById('addCart').onclick = ()=>{
   window.location.href = 'nextpage.html';
@@ -109,6 +126,5 @@ document.getElementById('buyNow').onclick = ()=>{
   window.location.href = 'nextpage.html';
 }
 </script>
-
 </body>
 </html>
