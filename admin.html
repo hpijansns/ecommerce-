@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel - My E-Commerce Store</title>
+<style>
+body{font-family:Arial,sans-serif;margin:0;padding:0;}
+header{background:#2874f0;color:white;padding:15px;text-align:center;}
+.container{padding:20px;max-width:800px;margin:auto;}
+input,textarea,select{width:100%;padding:8px;margin:5px 0;}
+button{padding:8px 15px;background:#2874f0;color:white;border:none;border-radius:3px;cursor:pointer;margin-right:5px;}
+button.delete{background:#ff4d4d;}
+button.edit{background:#ffa500;}
+nav.admin-nav{display:flex;gap:10px;margin-bottom:10px;}
+nav.admin-nav button{background:#555;color:white;}
+section{display:none;}
+.product-item{border:1px solid #ccc;padding:10px;margin-bottom:10px;border-radius:5px;display:flex;align-items:center;gap:10px;}
+.product-item img{max-width:80px; max-height:80px;}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Admin Panel</h1>
+</header>
+
+<div class="container">
+<nav class="admin-nav">
+<button onclick="showSection('products')">Products</button>
+<button onclick="showSection('orders')">Orders</button>
+</nav>
+
+<!-- Products Section -->
+<section id="products">
+<h2 id="form-title">Add New Product</h2>
+<input type="text" id="name" placeholder="Product Name">
+<input type="number" id="price" placeholder="Price">
+<input type="file" id="image" accept="image/*">
+<textarea id="desc" placeholder="Description"></textarea>
+<select id="grade">
+  <option value="">Select Grade</option>
+  <option value="Ultra">Ultra</option>
+  <option value="Premium">Premium</option>
+  <option value="Standard">Standard</option>
+</select>
+<button onclick="saveProduct()">Save Product</button>
+<button onclick="cancelEdit()" style="background:#888;">Cancel</button>
+<div id="product-list"></div>
+</section>
+
+<!-- Orders Section -->
+<section id="orders">
+<h2>Orders</h2>
+<div id="order-list"></div>
+</section>
+
+</div>
+
+<script>
+// Sections
+function showSection(name){
+  document.querySelectorAll('section').forEach(s=>s.style.display='none');
+  document.getElementById(name).style.display='block';
+}
+showSection('products');
+
+// Product CRUD
+let products = JSON.parse(localStorage.getItem('products')) || [];
+let editId = null;
+
+function saveProduct(){
+  const
