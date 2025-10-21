@@ -5,48 +5,143 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>E-Commerce Landing</title>
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;padding-top:200px;}
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+}
 
 /* Hero fixed top */
-header{position:fixed;top:0;left:0;width:100%;height:200px;z-index:1000;overflow:hidden;}
-#heroImage{width:100%;height:100%;object-fit:contain;transition:transform 0.3s;}
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  overflow: hidden;
+}
 
-/* Search bar overlay */
-#searchContainer{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;gap:5px;}
-#searchContainer input{padding:10px;width:200px;border-radius:5px;border:1px solid #ccc;}
-#searchContainer button{padding:10px 15px;border:none;border-radius:5px;background:#ff3b3b;color:white;cursor:pointer;}
+/* Hero image fits exactly */
+#heroImage {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+/* Search bar overlay - thoda niche */
+#searchContainer {
+  position: absolute;
+  top: 65%; /* thoda niche */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 5px;
+}
+#searchContainer input {
+  padding: 10px;
+  width: 200px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+#searchContainer button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  background: #ff3b3b;
+  color: white;
+  cursor: pointer;
+}
 
 /* Static Image */
-#staticImage{width:100%;height:auto;display:block;margin-top:10px;object-fit:contain;transition:transform 0.3s;}
+#staticImage {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-top: 10px;
+  object-fit: contain;
+  transition: transform 0.3s;
+}
 
 /* Slider */
-#sliderContainer{width:100%;overflow:hidden;position:relative;height:250px;margin-top:20px;}
-#sliderImages{display:flex;transition:transform 0.5s ease-in-out;}
-#sliderImages img{flex-shrink:0;width:100%;height:100%;object-fit:contain;transition:transform 0.3s;}
+#sliderContainer {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  height: 250px;
+  margin-top: 20px;
+}
+#sliderImages {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+#sliderImages img {
+  flex-shrink: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s;
+}
 
 /* Countdown + Sell Button */
-#countdownSection{display:flex;justify-content:center;align-items:center;gap:40px;margin:30px 0;flex-wrap:wrap;}
-#timerBox{background:#fff;padding:15px 25px;border-radius:5px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.2);}
-#saleText{font-size:18px;font-weight:bold;color:#ff3b3b;margin-bottom:5px;}
-#timer{font-size:24px;font-weight:bold;color:#333;}
-#sellButton{padding:15px 30px;background:#ff3b3b;color:white;border:none;border-radius:5px;cursor:pointer;font-size:18px;box-shadow:0 2px 6px rgba(0,0,0,0.2);}
-@media(max-width:768px){#countdownSection{flex-direction:column;gap:10px;} #searchContainer input{width:150px;}}
+#countdownSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  margin: 30px 0;
+  flex-wrap: wrap;
+}
+#timerBox {
+  background: #fff;
+  padding: 15px 25px;
+  border-radius: 5px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+#saleText {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ff3b3b;
+  margin-bottom: 5px;
+}
+#timer {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+#sellButton {
+  padding: 15px 30px;
+  background: #ff3b3b;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 18px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+@media(max-width:768px){
+  #countdownSection {flex-direction: column; gap: 10px;} 
+  #searchContainer input {width: 150px;}
+}
 </style>
 </head>
 <body>
 
 <header>
-<img id="heroImage" src="header-placeholder.jpg" alt="Hero">
-<div id="searchContainer">
-<input type="text" placeholder="Search products...">
-<button>Search</button>
-</div>
+  <img id="heroImage" src="header-placeholder.jpg" alt="Hero">
+  <div id="searchContainer">
+    <input type="text" placeholder="Search products...">
+    <button>Search</button>
+  </div>
 </header>
 
 <img id="staticImage" src="static-placeholder.jpg" alt="Static Image">
 
 <div id="sliderContainer">
-<div id="sliderImages"></div>
+  <div id="sliderImages"></div>
 </div>
 
 <div id="countdownSection">
@@ -59,70 +154,73 @@ header{position:fixed;top:0;left:0;width:100%;height:200px;z-index:1000;overflow
 
 <script>
 // --- Hero & Static ---
-const heroImage=document.getElementById('heroImage');
-const staticImage=document.getElementById('staticImage');
+const heroImage = document.getElementById('heroImage');
+const staticImage = document.getElementById('staticImage');
 
-// Load saved hero
-const savedHero=localStorage.getItem('headerImage');
-if(savedHero){
-  heroImage.src=savedHero;
-  heroImage.style.transform=`scale(${localStorage.getItem('heroSize')||100}%)`;
+// Load saved hero & size
+const savedHero = localStorage.getItem('headerImage');
+if(savedHero) {
+  heroImage.src = savedHero;
+  heroImage.style.transform = `scale(${localStorage.getItem('heroSize')||100}%)`;
 }
 
-// Load saved static
-const savedStatic=localStorage.getItem('staticImage');
-if(savedStatic){
-  staticImage.src=savedStatic;
-  staticImage.style.transform=`scale(${localStorage.getItem('staticSize')||100}%)`;
+// Load saved static & size
+const savedStatic = localStorage.getItem('staticImage');
+if(savedStatic) {
+  staticImage.src = savedStatic;
+  staticImage.style.transform = `scale(${localStorage.getItem('staticSize')||100}%)`;
 }
 
 // --- Slider ---
-let sliderImagesContainer=document.getElementById('sliderImages');
-let sliderImages=JSON.parse(localStorage.getItem('sliderImages'))||[];
+let sliderImagesContainer = document.getElementById('sliderImages');
+let sliderImages = JSON.parse(localStorage.getItem('sliderImages')) || [];
 
 function renderSlider(){
-  sliderImagesContainer.innerHTML='';
+  sliderImagesContainer.innerHTML = '';
   sliderImages.forEach((src,i)=>{
-    const img=document.createElement('img');
-    img.src=src;
-    img.style.transform=`scale(${(localStorage.getItem(`sliderSize_${i}`)||100)/100})`;
+    const img = document.createElement('img');
+    img.src = src;
+    img.style.transform = `scale(${(localStorage.getItem(`sliderSize_${i}`)||100)/100})`;
     sliderImagesContainer.appendChild(img);
   });
 }
 renderSlider();
 
 // Auto-slide
-let currentIndex=0;
+let currentIndex = 0;
 function autoSlide(){
-  if(sliderImages.length==0) return;
+  if(sliderImages.length == 0) return;
   currentIndex++;
-  if(currentIndex>=sliderImages.length) currentIndex=0;
-  sliderImagesContainer.style.transform=`translateX(${-currentIndex*sliderImagesContainer.clientWidth}px)`;
+  if(currentIndex >= sliderImages.length) currentIndex = 0;
+  sliderImagesContainer.style.transform = `translateX(${-currentIndex*sliderImagesContainer.clientWidth}px)`;
 }
-setInterval(autoSlide,3000);
-window.addEventListener('resize',()=>{ sliderImagesContainer.style.transform=`translateX(${-currentIndex*sliderImagesContainer.clientWidth}px)`; });
+setInterval(autoSlide, 3000);
+window.addEventListener('resize', ()=>{ 
+  sliderImagesContainer.style.transform = `translateX(${-currentIndex*sliderImagesContainer.clientWidth}px)`;
+});
 
 // --- Countdown Timer ---
-let totalTime=(localStorage.getItem('timerMinutes')||20)*60;
-const timerDisplay=document.getElementById('timer');
+let totalTime = (localStorage.getItem('timerMinutes')||20)*60;
+const timerDisplay = document.getElementById('timer');
 function updateTimer(){
-  const minutes=Math.floor(totalTime/60);
-  const seconds=totalTime%60;
-  timerDisplay.textContent=`${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+  const minutes = Math.floor(totalTime/60);
+  const seconds = totalTime%60;
+  timerDisplay.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
   if(totalTime>0) totalTime--;
   else clearInterval(countdownInterval);
 }
-const countdownInterval=setInterval(updateTimer,1000);
+const countdownInterval = setInterval(updateTimer,1000);
 updateTimer();
 
 // Load countdown & sell styles
-document.getElementById('saleText').textContent=localStorage.getItem('saleText')||'Sale of the Day';
-document.getElementById('saleText').style.color=localStorage.getItem('saleTextColor')||'#ff3b3b';
-document.getElementById('timerBox').style.background=localStorage.getItem('timerBgColor')||'#ffffff';
-const sellBtn=document.getElementById('sellButton');
-sellBtn.textContent=localStorage.getItem('sellText')||'Sell is Live';
-sellBtn.style.color=localStorage.getItem('sellTextColor')||'#ffffff';
-sellBtn.style.background=localStorage.getItem('sellBgColor')||'#ff3b3b';
+document.getElementById('saleText').textContent = localStorage.getItem('saleText')||'Sale of the Day';
+document.getElementById('saleText').style.color = localStorage.getItem('saleTextColor')||'#ff3b3b';
+document.getElementById('timerBox').style.background = localStorage.getItem('timerBgColor')||'#ffffff';
+
+const sellBtn = document.getElementById('sellButton');
+sellBtn.textContent = localStorage.getItem('sellText')||'Sell is Live';
+sellBtn.style.color = localStorage.getItem('sellTextColor')||'#ffffff';
+sellBtn.style.background = localStorage.getItem('sellBgColor')||'#ff3b3b';
 sellBtn.addEventListener('click',()=>{ alert('Sell is Live clicked!'); });
 </script>
 </body>
