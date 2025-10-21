@@ -15,7 +15,6 @@ button{padding:10px 15px;border:none;border-radius:5px;background:#ff3b3b;color:
 </style>
 </head>
 <body>
-
 <h1>Admin Panel</h1>
 
 <!-- Hero -->
@@ -32,7 +31,8 @@ button{padding:10px 15px;border:none;border-radius:5px;background:#ff3b3b;color:
 </select>
 <label>Zoom (%):</label>
 <input type="number" id="heroZoom" min="50" max="200" value="100">
-<button onclick="removeHero()">Delete Hero</button>
+<button id="heroSave">Save Hero</button>
+<button id="heroDelete">Delete Hero</button>
 <img id="heroPreview" src="" style="width:100%;margin-top:10px;"/>
 </section>
 
@@ -50,7 +50,8 @@ button{padding:10px 15px;border:none;border-radius:5px;background:#ff3b3b;color:
 </select>
 <label>Zoom (%):</label>
 <input type="number" id="staticZoom" min="50" max="200" value="100">
-<button onclick="removeStatic()">Delete Static</button>
+<button id="staticSave">Save Static</button>
+<button id="staticDelete">Delete Static</button>
 <img id="staticPreview" src="" style="width:100%;margin-top:10px;"/>
 </section>
 
@@ -59,6 +60,7 @@ button{padding:10px 15px;border:none;border-radius:5px;background:#ff3b3b;color:
 <h2>Slider Images (Max 5)</h2>
 <input type="file" id="sliderUpload" multiple>
 <div id="sliderList"></div>
+<button id="clearSlider">Clear Slider</button>
 </section>
 
 <!-- Countdown -->
@@ -68,6 +70,7 @@ button{padding:10px 15px;border:none;border-radius:5px;background:#ff3b3b;color:
 <label>Text Color:</label><input type="color" id="saleTextColor">
 <label>Countdown Minutes:</label><input type="number" id="timerMinutes" min="1" value="20">
 <label>Background Color:</label><input type="color" id="timerBgColor">
+<button id="countdownSave">Save Countdown</button>
 </section>
 
 <!-- Sell Button -->
@@ -76,40 +79,108 @@ button{padding:10px 15px;border:none;border-radius:5px;background:#ff3b3b;color:
 <label>Text:</label><input type="text" id="sellText">
 <label>Text Color:</label><input type="color" id="sellTextColor">
 <label>Background Color:</label><input type="color" id="sellBgColor">
+<button id="sellSave">Save Sell Button</button>
 </section>
 
 <script>
-// Convert file to base64
+// Utility
 function fileToDataURL(file, callback){
   const reader=new FileReader();
   reader.onload=e=>callback(e.target.result);
   reader.readAsDataURL(file);
 }
 
-// Hero
-const heroUpload = document.getElementById('heroUpload');
-const heroPreview = document.getElementById('heroPreview');
-const heroPosition = document.getElementById('heroPosition');
-const heroZoom = document.getElementById('heroZoom');
+// --- Hero ---
+const heroUpload=document.getElementById('heroUpload');
+const heroPreview=document.getElementById('heroPreview');
+const heroPosition=document.getElementById('heroPosition');
+const heroZoom=document.getElementById('heroZoom');
+const heroSave=document.getElementById('heroSave');
+const heroDelete=document.getElementById('heroDelete');
+let heroFileData=null;
 
 heroUpload.addEventListener('change', e=>{
   const file=e.target.files[0];
-  if(file){ fileToDataURL(file, data=>{ localStorage.setItem('headerImage',data); heroPreview.src=data; }); }
+  if(file) fileToDataURL(file,data=>{ heroPreview.src=data; heroFileData=data; });
 });
-function removeHero(){ localStorage.removeItem('headerImage'); heroPreview.src=''; }
-heroPosition.addEventListener('change', ()=>{ heroPreview.style.objectPosition = heroPosition.value; localStorage.setItem('heroPosition', heroPosition.value); });
-heroZoom.addEventListener('input', ()=>{ heroPreview.style.transform = `scale(${heroZoom.value/100})`; localStorage.setItem('heroZoom', heroZoom.value); });
+heroSave.addEventListener('click', ()=>{
+  if(heroFileData){ localStorage.setItem('headerImage', heroFileData); }
+  localStorage.setItem('heroPosition', heroPosition.value);
+  localStorage.setItem('heroZoom', heroZoom.value);
+  alert('Hero Saved!');
+});
+heroDelete.addEventListener('click', ()=>{
+  localStorage.removeItem('headerImage');
+  heroPreview.src='header-placeholder.jpg';
+  alert('Hero Deleted!');
+});
 
-// Static
-const staticUpload = document.getElementById('staticUpload');
-const staticPreview = document.getElementById('staticPreview');
-const staticPosition = document.getElementById('staticPosition');
-const staticZoom = document.getElementById('staticZoom');
+// --- Static ---
+const staticUpload=document.getElementById('staticUpload');
+const staticPreview=document.getElementById('staticPreview');
+const staticPosition=document.getElementById('staticPosition');
+const staticZoom=document.getElementById('staticZoom');
+const staticSave=document.getElementById('staticSave');
+const staticDelete=document.getElementById('staticDelete');
+let staticFileData=null;
 
 staticUpload.addEventListener('change', e=>{
   const file=e.target.files[0];
-  if(file){ fileToDataURL(file,data=>{ localStorage.setItem('staticImage',data); staticPreview.src=data; }); }
+  if(file) fileToDataURL(file,data=>{ staticPreview.src=data; staticFileData=data; });
 });
-function removeStatic(){ localStorage.removeItem('staticImage'); staticPreview.src=''; }
-staticPosition.addEventListener('change', ()=>{ staticPreview.style.objectPosition = staticPosition.value; localStorage.setItem('staticPosition', staticPosition.value); });
-static
+staticSave.addEventListener('click', ()=>{
+  if(staticFileData) localStorage.setItem('staticImage', staticFileData);
+  localStorage.setItem('staticPosition', staticPosition.value);
+  localStorage.setItem('staticZoom', staticZoom.value);
+  alert('Static Saved!');
+});
+staticDelete.addEventListener('click', ()=>{
+  localStorage.removeItem('staticImage');
+  staticPreview.src='static-placeholder.jpg';
+  alert('Static Deleted!');
+});
+
+// --- Slider ---
+const sliderUpload=document.getElementById('sliderUpload');
+const sliderList=document.getElementById('sliderList');
+const clearSlider=document.getElementById('clearSlider');
+
+let sliderImages=JSON.parse(localStorage.getItem('sliderImages'))||[];
+
+function renderSliderList(){
+  sliderList.innerHTML='';
+  sliderImages.forEach((img,i)=>{
+    const div=document.createElement('div');
+    div.style.display='inline-block';
+    div.style.textAlign='center';
+    const image=document.createElement('img');
+    image.src=img;
+    const delBtn=document.createElement('button');
+    delBtn.textContent='Delete';
+    delBtn.onclick=()=>{ sliderImages.splice(i,1); localStorage.setItem('sliderImages', JSON.stringify(sliderImages)); renderSliderList(); alert('Slider image deleted!'); };
+    div.appendChild(image);
+    div.appendChild(delBtn);
+    sliderList.appendChild(div);
+  });
+}
+renderSliderList();
+
+sliderUpload.addEventListener('change', e=>{
+  const files=Array.from(e.target.files).slice(0,5-sliderImages.length);
+  files.forEach(file=>{
+    fileToDataURL(file,data=>{
+      sliderImages.push(data);
+      localStorage.setItem('sliderImages', JSON.stringify(sliderImages));
+      renderSliderList();
+    });
+  });
+});
+
+clearSlider.addEventListener('click', ()=>{
+  sliderImages=[];
+  localStorage.removeItem('sliderImages');
+  renderSliderList();
+  alert('All slider images cleared!');
+});
+
+//
