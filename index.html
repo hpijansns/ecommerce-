@@ -1,218 +1,304 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Pintu's eCommerce</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Shop - Landing</title>
 <style>
-body {
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
-  background: #f8f8f8;
-}
+  :root{--accent:#ff3b3b;--muted:#888;}
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    padding:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f5f5f5;
+    transition:padding-top .15s;
+  }
 
-/* Hero section */
-header {
-  position: relative;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-}
+  /* Header (hero) - fixed at top, image will control height */
+  header{
+    position:fixed;
+    top:0; left:0; right:0;
+    z-index:1000;
+    overflow:hidden;
+    background:#000;
+  }
+  #heroImage{
+    width:100%;
+    height:auto;
+    display:block;
+    object-fit:contain; /* contain => no crop */
+    -webkit-user-drag: none;
+    user-select:none;
+  }
 
-#heroImage {
-  width: 100%;
-  display: block;
-  object-fit: contain;
-}
+  /* search overlay a bit lower */
+  #searchContainer{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    top:65%; /* slightly down on hero */
+    display:flex;
+    gap:6px;
+    z-index:1100;
+    pointer-events:auto;
+  }
+  #searchInput{
+    padding:10px 12px;
+    width:240px;
+    border-radius:24px 0 0 24px;
+    border:1px solid #ccc;
+    outline:none;
+    background:rgba(255,255,255,0.95);
+  }
+  #searchBtn{
+    padding:10px 14px;
+    border-radius:0 24px 24px 0;
+    border:none;
+    background:var(--accent);
+    color:white;
+    cursor:pointer;
+  }
 
-/* Search bar overlay */
-#searchContainer {
-  position: absolute;
-  top: 65%; /* slightly below center */
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  gap: 5px;
-}
+  /* Static image under hero */
+  #staticSection{margin:0;padding:0}
+  #staticImage{
+    width:100%;
+    height:auto;
+    display:block;
+    object-fit:contain;
+  }
 
-#searchInput {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px 0 0 5px;
-  outline: none;
-  width: 200px;
-}
+  /* Slider */
+  #sliderContainer{
+    width:100%;
+    overflow:hidden;
+    position:relative;
+    height:260px;
+    margin-top:14px;
+    background:#fff;
+  }
+  #sliderImages{
+    display:flex;
+    transition:transform .5s ease;
+    height:100%;
+  }
+  #sliderImages img{
+    width:100%;
+    height:100%;
+    flex-shrink:0;
+    object-fit:contain;
+  }
 
-#searchBtn {
-  padding: 10px 15px;
-  background: #ff3b3b;
-  color: white;
-  border: none;
-  border-radius: 0 5px 5px 0;
-  cursor: pointer;
-}
+  /* Countdown + Sell */
+  #countdownSection{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:24px;
+    padding:18px;
+    background:#fff;
+    margin-top:12px;
+    border-top:1px solid #eee;
+    border-bottom:1px solid #eee;
+  }
+  #timerBox{
+    background:var(--card,#fff);
+    padding:10px 16px;
+    border-radius:8px;
+    text-align:center;
+    box-shadow:0 2px 6px rgba(0,0,0,0.06);
+  }
+  #saleText{color:var(--accent);font-weight:700;margin-bottom:6px}
+  #timer{font-size:20px;font-weight:700}
+  #sellButton{
+    padding:12px 18px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;
+    box-shadow:0 2px 6px rgba(0,0,0,0.08)
+  }
 
-/* Static image section */
-#staticSection {
-  width: 100%;
-  margin: 0;
-  padding: 0;
-}
+  /* Product grid */
+  .product-section{padding:18px;background:#fff;margin-top:12px}
+  .section-title{font-size:20px;margin-bottom:12px;font-weight:700;text-align:left}
+  .product-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+  }
+  .product-card{
+    background:#fafafa;border-radius:10px;padding:10px;border:1px solid #eee;text-align:center;
+    transition:transform .14s ease,box-shadow .14s ease;
+  }
+  .product-card:hover{transform:translateY(-6px);box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+  .product-card img{width:100%;height:auto;border-radius:8px;display:block;margin-bottom:8px;object-fit:contain}
+  .product-name{color:#000;font-weight:600;font-size:15px;margin-bottom:6px}
+  .discount{color:green;font-weight:800;margin-bottom:6px}
+  .price{font-size:14px;margin-bottom:6px}
+  .price .old{text-decoration:line-through;color:var(--muted);margin-right:6px}
+  .price .new{font-weight:800}
+  .delivery{font-size:13px;color:#555}
 
-#staticImage {
-  width: 100%;
-  display: block;
-  object-fit: contain;
-}
-
-/* Slider section */
-#slider {
-  width: 100%;
-  overflow: hidden;
-  position: relative;
-}
-
-#slider img {
-  width: 100%;
-  height: auto;
-  display: none;
-  object-fit: contain;
-}
-
-#slider img.active {
-  display: block;
-}
-
-/* Countdown section */
-#countdownSection {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #fff;
-  padding: 10px 15px;
-  border-top: 1px solid #ddd;
-  border-bottom: 1px solid #ddd;
-}
-
-#saleText {
-  font-weight: bold;
-  font-size: 1.2em;
-}
-
-#timer {
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-weight: bold;
-}
-
-#sellBtn {
-  padding: 8px 12px;
-  border-radius: 5px;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-/* Responsive */
-@media(max-width:768px){
-  #searchInput{width:150px;}
-  #countdownSection{flex-direction:column;gap:10px;}
-}
+  @media(min-width:900px){
+    .product-grid{grid-template-columns:repeat(4,1fr)}
+  }
+  @media(max-width:420px){
+    #searchInput{width:140px}
+    #sliderContainer{height:200px}
+  }
 </style>
 </head>
 <body>
 
-<header>
-  <img id="heroImage" src="" alt="Header Image">
+<header id="heroHeader">
+  <img id="heroImage" src="" alt="Hero banner">
   <div id="searchContainer">
-    <input type="text" id="searchInput" placeholder="Search products...">
+    <input id="searchInput" placeholder="Search products...">
     <button id="searchBtn">Search</button>
   </div>
 </header>
 
+<!-- static -->
 <section id="staticSection">
-  <img id="staticImage" src="" alt="Static Section">
+  <img id="staticImage" src="" alt="Static banner">
 </section>
 
-<section id="slider"></section>
+<!-- slider -->
+<section id="sliderContainer">
+  <div id="sliderImages"></div>
+</section>
 
+<!-- countdown -->
 <section id="countdownSection">
-  <span id="saleText"></span>
-  <span id="timer"></span>
-  <button id="sellBtn"></button>
+  <div id="timerBox">
+    <div id="saleText">Sale of the Day</div>
+    <div id="timer">20:00</div>
+  </div>
+  <button id="sellButton">Sell is Live</button>
+</section>
+
+<!-- products -->
+<section class="product-section">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <div class="section-title">Latest Products</div>
+  </div>
+  <div id="productGrid" class="product-grid"></div>
 </section>
 
 <script>
-// Load Hero
-const heroImage = localStorage.getItem('headerImage');
-const heroSize = localStorage.getItem('heroSize') || 100;
-if(heroImage){
-  document.getElementById('heroImage').src = heroImage;
-  document.getElementById('heroImage').style.width = heroSize + '%';
+/* Helpers */
+function safeParse(key){ try{return JSON.parse(localStorage.getItem(key))||[];}catch(e){return [];} }
+
+/* Ensure hero fixed but not hiding content:
+   Set body padding-top equal to heroImage height on load/resize */
+const heroHeader = document.getElementById('heroHeader');
+const heroImage = document.getElementById('heroImage');
+
+function adjustBodyPadding(){
+  // heroImage natural height might not be known instantly. Use getBoundingClientRect
+  const h = heroImage.clientHeight || 180;
+  document.body.style.paddingTop = h + 'px';
 }
+window.addEventListener('resize', adjustBodyPadding);
+heroImage.addEventListener('load', adjustBodyPadding);
 
-// Load Static
-const staticImage = localStorage.getItem('staticImage');
-const staticSize = localStorage.getItem('staticSize') || 100;
-if(staticImage){
-  document.getElementById('staticImage').src = staticImage;
-  document.getElementById('staticImage').style.width = staticSize + '%';
-}
+/* Load hero & static */
+const savedHero = localStorage.getItem('headerImage');
+if(savedHero){ heroImage.src = savedHero; } else { heroImage.src = 'https://via.placeholder.com/1200x360?text=Header+Banner'; }
 
-// Load Slider
-const sliderImages = JSON.parse(localStorage.getItem('sliderImages')) || [];
-const sliderContainer = document.getElementById('slider');
+const staticImgEl = document.getElementById('staticImage');
+const savedStatic = localStorage.getItem('staticImage');
+if(savedStatic){ staticImgEl.src = savedStatic; } else { staticImgEl.src = 'https://via.placeholder.com/1200x200?text=Static+Banner'; }
 
-if(sliderImages.length > 0){
-  sliderImages.forEach((src, i)=>{
+/* Slider */
+const sliderContainer = document.getElementById('sliderImages');
+let sliderImages = safeParse('sliderImages');
+
+function renderSlider(){
+  sliderContainer.innerHTML = '';
+  sliderImages.forEach(src=>{
     const img = document.createElement('img');
     img.src = src;
-    if(i === 0) img.classList.add('active');
     sliderContainer.appendChild(img);
   });
-
-  let current = 0;
-  setInterval(()=>{
-    const imgs = sliderContainer.querySelectorAll('img');
-    imgs[current].classList.remove('active');
-    current = (current + 1) % imgs.length;
-    imgs[current].classList.add('active');
-  }, 3000);
+  // reset transform
+  currentIndex = 0;
+  sliderContainer.style.transform = 'translateX(0)';
 }
+renderSlider();
 
-// Countdown & Sell button
-const timerMinutes = localStorage.getItem('timerMinutes') || 20;
-const saleText = localStorage.getItem('saleText') || 'Sale of the Day';
-const saleTextColor = localStorage.getItem('saleTextColor') || '#ff3b3b';
-const timerBgColor = localStorage.getItem('timerBgColor') || '#ffffff';
-const sellText = localStorage.getItem('sellText') || 'Sell is Live';
-const sellTextColor = localStorage.getItem('sellTextColor') || '#ffffff';
-const sellBgColor = localStorage.getItem('sellBgColor') || '#ff3b3b';
+let currentIndex = 0;
+function autoSlide(){
+  if(sliderImages.length<=1) return;
+  currentIndex = (currentIndex + 1) % sliderImages.length;
+  sliderContainer.style.transform = `translateX(${-currentIndex * sliderContainer.clientWidth}px)`;
+}
+setInterval(autoSlide, 3000);
+window.addEventListener('resize', ()=>{ sliderContainer.style.transform = `translateX(${-currentIndex * sliderContainer.clientWidth}px)`; });
 
-document.getElementById('saleText').innerText = saleText;
-document.getElementById('saleText').style.color = saleTextColor;
+/* Countdown + Sell load from storage */
+function loadCountdownAndSell(){
+  const saleText = localStorage.getItem('saleText') || 'Sale of the Day';
+  const saleTextColor = localStorage.getItem('saleTextColor') || '#ff3b3b';
+  const timerMinutes = parseInt(localStorage.getItem('timerMinutes') || '20',10);
+  const timerBgColor = localStorage.getItem('timerBgColor') || '#ffffff';
+  const sellText = localStorage.getItem('sellText') || 'Sell is Live';
+  const sellTextColor = localStorage.getItem('sellTextColor') || '#ffffff';
+  const sellBg = localStorage.getItem('sellBgColor') || '#ff3b3b';
 
-document.getElementById('sellBtn').innerText = sellText;
-document.getElementById('sellBtn').style.color = sellTextColor;
-document.getElementById('sellBtn').style.backgroundColor = sellBgColor;
+  document.getElementById('saleText').innerText = saleText;
+  document.getElementById('saleText').style.color = saleTextColor;
+  document.getElementById('timerBox').style.background = timerBgColor;
+  document.getElementById('sellButton').innerText = sellText;
+  document.getElementById('sellButton').style.color = sellTextColor;
+  document.getElementById('sellButton').style.background = sellBg;
 
-const timerElement = document.getElementById('timer');
-timerElement.style.backgroundColor = timerBgColor;
-
-let countdown = timerMinutes * 60;
-function updateTimer(){
-  const minutes = Math.floor(countdown / 60);
-  const seconds = countdown % 60;
-  timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-  countdown--;
-  if(countdown < 0){
-    countdown = 0;
-    clearInterval(interval);
+  // countdown
+  let total = timerMinutes * 60;
+  const timerEl = document.getElementById('timer');
+  function tick(){
+    const m = Math.floor(total/60);
+    const s = total % 60;
+    timerEl.textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    if(total>0) total--; else clearInterval(intv);
   }
+  tick();
+  const intv = setInterval(tick,1000);
 }
-updateTimer();
-const interval = setInterval(updateTimer,1000);
+loadCountdownAndSell();
+
+/* Products grid */
+function loadProducts(){
+  const products = safeParse('products'); // array of {name,oldPrice,newPrice,discount,image}
+  const grid = document.getElementById('productGrid');
+  grid.innerHTML = '';
+  if(products.length === 0){
+    // show placeholders or nothing
+    const p = document.createElement('div');
+    p.style.gridColumn = '1/-1';
+    p.style.textAlign = 'center';
+    p.style.color = '#666';
+    p.style.padding = '12px';
+    p.textContent = 'No products yet — add from admin panel.';
+    grid.appendChild(p);
+    return;
+  }
+  products.forEach(prod=>{
+    const card = document.createElement('div');
+    card.className = 'product-card';
+    card.innerHTML = `
+      <img src="${prod.image}" alt="${escapeHtml(prod.name)}">
+      <div class="product-name">${escapeHtml(prod.name)}</div>
+      <div class="discount">${prod.discount}% OFF</div>
+      <div class="price"><span class="old">₹${prod.oldPrice}</span> <span class="new">₹${prod.newPrice}</span></div>
+      <div class="delivery">Free delivery in 2 days</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+function escapeHtml(s){ return (s+'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+loadProducts();
+
+/* After all images loaded, adjust padding so header doesn't cover content */
+setTimeout(adjustBodyPadding,200);
 </script>
 </body>
 </html>
