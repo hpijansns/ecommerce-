@@ -6,19 +6,69 @@
 <title>Custom Landing Page</title>
 <style>
 body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;}
+/* Header */
 header{position:relative;}
-header img#heroImage{width:100%;height:400px;object-fit:cover;}
+header img#heroImage{width:100%;height:400px;object-fit:cover;display:block;}
 #searchContainer{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;gap:5px;}
 #searchContainer input{padding:10px;width:250px;border-radius:5px;border:1px solid #ccc;}
 #searchContainer button{padding:10px 15px;border:none;border-radius:5px;background:#ff3b3b;color:white;cursor:pointer;}
-#staticImage{width:100%;margin-top:10px;display:block;}
-#sliderContainer{width:100%;max-width:1000px;margin:20px auto;overflow:hidden;position:relative;border-radius:10px;}
+
+/* Static Image */
+#staticImage{width:100%;margin-top:10px;display:block;object-fit:cover;}
+
+/* Slider */
+#sliderContainer{width:100%;overflow:hidden;position:relative;margin-top:20px;}
 #sliderImages{display:flex;transition:transform 0.5s ease-in-out;}
-#sliderImages img{width:100%;flex-shrink:0;height:250px;object-fit:cover;margin-right:5px;}
+#sliderImages img{width:100%;flex-shrink:0;height:250px;object-fit:cover;margin:0;} /* gapless */
+
+/* Countdown + Sell Button */
+#countdownSection{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:40px; 
+  margin:30px 0;
+  flex-wrap:wrap;
+}
+#timerBox{
+  background:#fff;
+  padding:15px 25px;
+  border-radius:5px;
+  text-align:center;
+  box-shadow:0 2px 6px rgba(0,0,0,0.2);
+}
+#saleText{
+  font-size:18px;
+  font-weight:bold;
+  color:#ff3b3b;
+  margin-bottom:5px;
+}
+#timer{
+  font-size:24px;
+  font-weight:bold;
+  color:#333;
+}
+#sellButton{
+  padding:15px 30px;
+  background:#ff3b3b;
+  color:white;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
+  font-size:18px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.2);
+}
+@media(max-width:768px){
+  #countdownSection{
+    flex-direction:column;
+    gap:10px;
+  }
+}
 </style>
 </head>
 <body>
 
+<!-- Header Hero -->
 <header>
 <img id="heroImage" src="header-placeholder.jpg" alt="Hero">
 <div id="searchContainer">
@@ -27,12 +77,21 @@ header img#heroImage{width:100%;height:400px;object-fit:cover;}
 </div>
 </header>
 
+<!-- Static Image -->
 <img id="staticImage" src="static-placeholder.jpg" alt="Static Image">
 
+<!-- Slider -->
 <div id="sliderContainer">
-<div id="sliderImages">
-<!-- Admin-added images will appear here -->
+<div id="sliderImages"></div>
 </div>
+
+<!-- Countdown + Sell -->
+<div id="countdownSection">
+  <div id="timerBox">
+    <div id="saleText">Sale of the Day</div>
+    <div id="timer">20:00</div>
+  </div>
+  <button id="sellButton">Sell is Live</button>
 </div>
 
 <script>
@@ -41,16 +100,16 @@ const heroImage = document.getElementById('heroImage');
 const savedHero = localStorage.getItem('headerImage');
 if(savedHero){ heroImage.src = savedHero; }
 
-// --- Static Image Below Header ---
+// --- Static Image ---
 const staticImage = document.getElementById('staticImage');
 const savedStatic = localStorage.getItem('staticImage');
 if(savedStatic){ staticImage.src = savedStatic; }
 
-// --- Image Slider ---
+// --- Slider Images ---
 let sliderImagesContainer = document.getElementById('sliderImages');
 let sliderImages = JSON.parse(localStorage.getItem('sliderImages')) || [
-  'slide1.jpg','slide2.jpg','slide3.jpg'
-]; // Default slides if none
+  'slide1.jpg','slide2.jpg','slide3.jpg','slide4.jpg','slide5.jpg'
+];
 
 function renderSlider(){
   sliderImagesContainer.innerHTML='';
@@ -69,8 +128,26 @@ function autoSlide(){
   const offset = -currentIndex * sliderImagesContainer.clientWidth;
   sliderImagesContainer.style.transform = `translateX(${offset}px)`;
 }
-setInterval(autoSlide, 1000); // Slide every 1 second
-</script>
+setInterval(autoSlide, 1000);
+window.addEventListener('resize', ()=>{ sliderImagesContainer.style.transform = `translateX(${-currentIndex*sliderImagesContainer.clientWidth}px)`; });
 
+// --- Countdown Timer ---
+let totalTime = 20*60; // 20 minutes in seconds
+const timerDisplay = document.getElementById('timer');
+function updateTimer(){
+  const minutes = Math.floor(totalTime/60);
+  const seconds = totalTime % 60;
+  timerDisplay.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+  if(totalTime>0) totalTime--;
+  else clearInterval(countdownInterval);
+}
+const countdownInterval = setInterval(updateTimer,1000);
+updateTimer();
+
+// --- Sell Button ---
+const sellButton = document.getElementById('sellButton');
+sellButton.addEventListener('click',()=>{ alert('Sell is Live clicked!'); });
+
+</script>
 </body>
 </html>
