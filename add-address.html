@@ -16,13 +16,11 @@ body {
     background: #fff;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 h1 {
     text-align: center;
     font-size: 24px;
     margin-bottom: 20px;
-    color: #333;
 }
 .steps {
     display: flex;
@@ -33,8 +31,6 @@ h1 {
     flex: 1;
     text-align: center;
     position: relative;
-    font-weight: bold;
-    color: #888;
 }
 .step::after {
     content: '';
@@ -50,6 +46,7 @@ h1 {
     display: none;
 }
 .step.active {
+    font-weight: bold;
     color: #ff6600;
 }
 form label {
@@ -88,14 +85,12 @@ button:hover {
 <div class="container">
     <h1>Add Delivery Address</h1>
 
-    <!-- Steps -->
     <div class="steps">
         <div class="step active">Address</div>
         <div class="step">Order Summary</div>
         <div class="step">Payment</div>
     </div>
 
-    <!-- Form -->
     <form id="addressForm">
         <label for="fullName">Full Name</label>
         <input type="text" id="fullName" required>
@@ -112,38 +107,20 @@ button:hover {
         <label for="state">State</label>
         <select id="state" required>
             <option value="">Select State</option>
-            <option>Andhra Pradesh</option>
-            <option>Arunachal Pradesh</option>
-            <option>Assam</option>
+            <option>Rajasthan</option>
+            <option>Madhya Pradesh</option>
+            <option>Uttar Pradesh</option>
             <option>Bihar</option>
-            <option>Chhattisgarh</option>
-            <option>Goa</option>
+            <option>Delhi</option>
             <option>Gujarat</option>
             <option>Haryana</option>
-            <option>Himachal Pradesh</option>
-            <option>Jharkhand</option>
+            <option>Maharashtra</option>
+            <option>Punjab</option>
+            <option>West Bengal</option>
+            <option>Telangana</option>
+            <option>Tamil Nadu</option>
             <option>Karnataka</option>
             <option>Kerala</option>
-            <option>Madhya Pradesh</option>
-            <option>Maharashtra</option>
-            <option>Manipur</option>
-            <option>Meghalaya</option>
-            <option>Mizoram</option>
-            <option>Nagaland</option>
-            <option>Odisha</option>
-            <option>Punjab</option>
-            <option>Rajasthan</option>
-            <option>Sikkim</option>
-            <option>Tamil Nadu</option>
-            <option>Telangana</option>
-            <option>Tripura</option>
-            <option>Uttar Pradesh</option>
-            <option>Uttarakhand</option>
-            <option>West Bengal</option>
-            <option>Delhi</option>
-            <option>Jammu and Kashmir</option>
-            <option>Ladakh</option>
-            <option>Puducherry</option>
         </select>
 
         <label for="house">House No., Building Name</label>
@@ -159,6 +136,7 @@ button:hover {
 <script>
 document.getElementById('addressForm').addEventListener('submit', function(e){
     e.preventDefault();
+
     const addressData = {
         fullName: document.getElementById('fullName').value,
         mobile: document.getElementById('mobile').value,
@@ -168,9 +146,12 @@ document.getElementById('addressForm').addEventListener('submit', function(e){
         house: document.getElementById('house').value,
         road: document.getElementById('road').value
     };
+
+    // Save address data to localStorage
     localStorage.setItem('deliveryAddress', JSON.stringify(addressData));
-    alert('Address Saved Successfully!');
-    window.location.href = "order-summary.html"; // redirect to next page
+
+    // Redirect to next page
+    window.location.href = "order-summary.html";
 });
 </script>
 
