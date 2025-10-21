@@ -6,128 +6,127 @@
 <title>Product Page</title>
 <style>
 body{margin:0;padding:0;font-family:Arial,sans-serif;background:#f4f4f4;}
-header img{width:100%;height:auto;display:block;object-fit:cover;border-bottom:1px solid #ddd;}
-
-/* Product Slider */
-#productSlider{width:100%;overflow:hidden;position:relative;margin:10px 0;}
-#productSlider img{width:100%;display:none;object-fit:cover;border-radius:8px;}
-#productSlider img.active{display:block;}
-
-/* Storage Options */
-#storageOptions{margin:10px;padding:0 10px;}
-.storage-btn{padding:8px 12px;margin:5px;border:1px solid #ccc;border-radius:5px;cursor:pointer;display:inline-block;}
-
-/* Product Details */
-#productDetails{background:#fff;padding:10px;margin:10px;border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,0.1);}
-#oldPrice{color:gray;text-decoration:line-through;margin-right:5px;}
-#discount{color:green;font-weight:bold;}
-#countdownSection{background:orange;padding:10px;margin:10px;border-radius:8px;display:flex;align-items:center;justify-content:space-between; color:#fff;}
-#bottomSingleImage, #bottomImages{margin:10px;padding:0 10px;display:flex;flex-direction:column;gap:10px;}
-#bottomImages img, #bottomSingleImage img{width:100%;border-radius:5px;object-fit:cover;}
-
-/* Bottom Fixed Buttons */
-.action-buttons{position:fixed;bottom:0;left:0;width:100%;display:flex;}
-.action-buttons button{flex:1;padding:15px;font-size:16px;border:none;cursor:pointer;}
-#addToCart{background:#ff3b3b;color:#fff;}
+header{width:100%;}
+header img{width:100%;height:auto;object-fit:cover;}
+#slider{width:100%;overflow:hidden;position:relative;margin:10px 0;}
+#slider img{width:100%;height:250px;object-fit:cover;display:none;}
+#slider img.active{display:block;}
+.container{max-width:800px;margin:auto;background:#fff;padding:10px;}
+.storage-select{margin:10px 0;}
+.product-detail{margin:10px 0;}
+.product-detail .price{font-size:16px;color:#555;}
+.product-detail .price del{color:gray;margin-right:5px;text-decoration:line-through;}
+.product-detail .discount{color:green;font-weight:bold;}
+#countdown{background:orange;color:#fff;padding:5px 10px;border-radius:5px;font-weight:bold;margin:10px 0;display:inline-block;}
+.bottom-images{display:flex;gap:5px;margin:10px 0;}
+.bottom-images img{width:32%;height:100px;object-fit:cover;border-radius:5px;}
+.fixed-buttons{position:fixed;bottom:0;left:0;width:100%;display:flex;}
+.fixed-buttons button{flex:1;padding:15px;font-size:16px;font-weight:bold;cursor:pointer;border:none;}
+#addCart{background:#3b82f6;color:#fff;}
 #buyNow{background:yellow;color:#000;}
+@media(max-width:768px){
+  #slider img{height:180px;}
+  .bottom-images img{width:32%;height:80px;}
+}
 </style>
 </head>
 <body>
 
 <!-- Header Image -->
 <header>
-  <img id="headerImage" src="https://via.placeholder.com/800x200?text=Header+Image" alt="Header Image">
+<img id="headerImage" src="https://via.placeholder.com/800x200?text=Header+Image" alt="Header">
 </header>
 
-<!-- Product Slider -->
-<section id="productSlider"></section>
-
-<!-- Storage Options -->
-<div id="storageOptions"></div>
-
-<!-- Product Details -->
-<div id="productDetails">
-  <h2 id="prodName">Example Product</h2>
-  <p><span id="oldPrice">₹2000</span> <span id="newPrice">₹999</span> <span id="discount">50% OFF</span></p>
-  <p id="prodDesc">This is an example product description.</p>
+<!-- Slider Images -->
+<div id="slider">
+  <img src="https://via.placeholder.com/800x250?text=Slide+1" class="active">
+  <img src="https://via.placeholder.com/800x250?text=Slide+2">
+  <img src="https://via.placeholder.com/800x250?text=Slide+3">
 </div>
 
-<!-- Countdown Section -->
-<div id="countdownSection">
-  <span id="saleText">Sale of the Day</span>
-  <span id="timer"></span>
-  <button id="sellBtn">Buy Now</button>
+<!-- Storage Selection -->
+<div class="container">
+  <div class="storage-select">
+    <label for="storage">Select Storage:</label>
+    <select id="storage">
+      <option value="1TB">1 TB</option>
+      <option value="512GB">512 GB</option>
+      <option value="128GB">128 GB</option>
+    </select>
+  </div>
+
+  <!-- Product Details -->
+  <div class="product-detail" id="productDetail"></div>
+
+  <!-- Single Image -->
+  <div>
+    <img id="singleImage" src="https://via.placeholder.com/800x150?text=Single+Image" alt="Single">
+  </div>
+
+  <!-- Countdown -->
+  <div id="countdown">20:00</div>
+
+  <!-- Bottom Images -->
+  <div class="bottom-images">
+    <img src="https://via.placeholder.com/250x100?text=Bottom+1">
+    <img src="https://via.placeholder.com/250x100?text=Bottom+2">
+    <img src="https://via.placeholder.com/250x100?text=Bottom+3">
+  </div>
 </div>
 
-<!-- Single Image below Countdown -->
-<div id="bottomSingleImage">
-  <img src="https://via.placeholder.com/800x200?text=Single+Image" alt="Single Image">
-</div>
-
-<!-- Three Bottom Images -->
-<div id="bottomImages">
-  <img src="https://via.placeholder.com/800x200?text=Bottom+1" alt="Bottom 1">
-  <img src="https://via.placeholder.com/800x200?text=Bottom+2" alt="Bottom 2">
-  <img src="https://via.placeholder.com/800x200?text=Bottom+3" alt="Bottom 3">
-</div>
-
-<!-- Bottom Fixed Buttons -->
-<div class="action-buttons">
-  <button id="addToCart">Add to Cart</button>
+<!-- Fixed Buttons -->
+<div class="fixed-buttons">
+  <button id="addCart">Add to Cart</button>
   <button id="buyNow">Buy Now</button>
 </div>
 
 <script>
-// Header image already in HTML
-
-// Product Slider Placeholder Images
-const sliderContainer = document.getElementById('productSlider');
-const sliderImages = [
-  'https://via.placeholder.com/800x400?text=Product+Image+1',
-  'https://via.placeholder.com/800x400?text=Product+Image+2',
-  'https://via.placeholder.com/800x400?text=Product+Image+3'
-];
-sliderImages.forEach((src,i)=>{
-  const img = document.createElement('img');
-  img.src = src;
-  if(i===0) img.classList.add('active');
-  sliderContainer.appendChild(img);
-});
+// Slider functionality
+let slides = document.querySelectorAll('#slider img');
 let current = 0;
 setInterval(()=>{
-  const imgs = sliderContainer.querySelectorAll('img');
-  imgs[current].classList.remove('active');
-  current = (current+1)%imgs.length;
-  imgs[current].classList.add('active');
+  slides[current].classList.remove('active');
+  current = (current+1)%slides.length;
+  slides[current].classList.add('active');
 },3000);
 
-// Storage Options
-const storageDiv = document.getElementById('storageOptions');
-const defaultStorages = ['128GB','512GB','1TB'];
-defaultStorages.forEach(s=>{
-  const btn = document.createElement('div');
-  btn.className='storage-btn';
-  btn.innerText = s;
-  storageDiv.appendChild(btn);
-});
+// Load product details from previous page
+const params = new URLSearchParams(window.location.search);
+const id = params.get('id');
+const products = JSON.parse(localStorage.getItem('products')||'[]');
+const product = products[id];
+const detailContainer = document.getElementById('productDetail');
+
+if(product){
+  detailContainer.innerHTML = `
+    <h2>${product.name}</h2>
+    <div class="price"><del>₹${product.oldPrice}</del> <span>₹${product.newPrice}</span></div>
+    <div class="discount">${product.discount}% OFF</div>
+    <p>Free Delivery in 2 Days</p>
+  `;
+}else{
+  detailContainer.innerHTML = '<p>Product not found</p>';
+}
 
 // Countdown Timer
-const timerMinutes = 20;
-const timerEl = document.getElementById('timer');
-let countdown = timerMinutes*60;
-const interval = setInterval(()=>{
+let countdown = 20*60; // 20 minutes
+const countdownEl = document.getElementById('countdown');
+function updateTimer(){
   const m = Math.floor(countdown/60);
   const s = countdown%60;
-  timerEl.innerText = `${m}:${s<10?'0'+s:s}`;
+  countdownEl.innerText = `${m}:${s<10?'0'+s:s}`;
   countdown--;
-  if(countdown<0) clearInterval(interval);
-},1000);
+  if(countdown<0) countdown=0;
+}
+setInterval(updateTimer,1000);
 
-// Bottom Buttons click
-const nextPage = 'checkout.html';
-document.getElementById('addToCart').onclick = ()=>{window.location.href=nextPage;};
-document.getElementById('buyNow').onclick = ()=>{window.location.href=nextPage;};
-document.getElementById('sellBtn').onclick = ()=>{window.location.href=nextPage;};
+// Buttons redirect
+document.getElementById('addCart').addEventListener('click',()=>{
+  window.location.href='nextpage.html';
+});
+document.getElementById('buyNow').addEventListener('click',()=>{
+  window.location.href='nextpage.html';
+});
 </script>
 
 </body>
