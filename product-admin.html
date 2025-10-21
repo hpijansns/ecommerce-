@@ -7,13 +7,15 @@
 <style>
 body{font-family:Arial,sans-serif;background:#f0f0f0;margin:0;padding:0;}
 .container{max-width:1200px;margin:auto;padding:20px;background:#fff;}
-h2{margin-top:0;color:#333;}
+h1,h2{color:#333;margin-top:0;}
 section{margin-bottom:30px;padding:10px;border:1px solid #ccc;border-radius:8px;background:#fafafa;}
 label{display:block;margin:5px 0;font-weight:bold;}
-input[type=text], input[type=number], input[type=file]{width:100%;padding:5px;margin-bottom:10px;}
+input[type=text], input[type=number], input[type=file], select{width:100%;padding:5px;margin-bottom:10px;}
 button{padding:7px 12px;margin-right:5px;background:#ff3b3b;color:#fff;border:none;border-radius:5px;cursor:pointer;}
 button.delete{background:#555;}
 img.preview{width:100px;height:80px;object-fit:cover;margin-right:5px;border:1px solid #ddd;border-radius:5px;}
+.flex-row{display:flex;gap:10px;flex-wrap:wrap;}
+.flex-row > div{flex:1;}
 .item-list{display:flex;align-items:center;margin:5px 0;}
 .item-list span{flex:1;margin-left:10px;}
 </style>
@@ -22,15 +24,24 @@ img.preview{width:100px;height:80px;object-fit:cover;margin-right:5px;border:1px
 <div class="container">
 <h1>Product Admin Panel</h1>
 
-<label>Product ID (0,1,2...)</label>
-<input type="number" id="productIdInput" value="0">
-
-<!-- Header Image -->
+<!-- Select Product -->
 <section>
-<h2>Header Image</h2>
+<h2>Select Product</h2>
+<select id="productSelect">
+  <!-- Generate 100 products -->
+  <script>
+    for(let i=0;i<100;i++){
+      document.write(`<option value="${i}">Product ${i+1}</option>`);
+    }
+  </script>
+</select>
+</section>
+
+<!-- Header Image (same for all) -->
+<section>
+<h2>Header Image (Same for all Products)</h2>
 <input type="file" id="headerImageUpload" accept="image/*">
 <img id="headerPreview" class="preview" src="">
-<button id="saveHeader">Save Header</button>
 </section>
 
 <!-- Slider Images -->
@@ -38,7 +49,6 @@ img.preview{width:100px;height:80px;object-fit:cover;margin-right:5px;border:1px
 <h2>Slider Images (Multiple)</h2>
 <input type="file" id="sliderUpload" accept="image/*" multiple>
 <div id="sliderList"></div>
-<button id="saveSlider">Save Slider</button>
 </section>
 
 <!-- Bottom Images -->
@@ -46,46 +56,74 @@ img.preview{width:100px;height:80px;object-fit:cover;margin-right:5px;border:1px
 <h2>Bottom Images</h2>
 <input type="file" id="bottomUpload" accept="image/*" multiple>
 <div id="bottomList"></div>
-<button id="saveBottom">Save Bottom Images</button>
 </section>
 
-<!-- Countdown -->
+<!-- Storage / Size -->
 <section>
-<h2>Countdown</h2>
+<h2>Storage / Size Options</h2>
+<div id="sizeList"></div>
+<input type="text" id="sizeInput" placeholder="Enter new storage / size">
+<button id="addSize">Add Size</button>
+</section>
+
+<!-- Countdown & Sell Button -->
+<section>
+<h2>Countdown & Buttons</h2>
+<div class="flex-row">
+<div>
 <label>Countdown Minutes</label>
 <input type="number" id="timerMinutesInput" value="15">
-<button id="saveCountdown">Save Countdown</button>
+<label>Countdown Background Color</label>
+<input type="text" id="timerBgInput" placeholder="#FFA500">
+</div>
+<div>
+<label>Sell Button Text</label>
+<input type="text" id="sellTextInput" value="Buy Now">
+<label>Sell Button Text Color</label>
+<input type="text" id="sellTextColorInput" placeholder="#ffffff">
+<label>Sell Button Background</label>
+<input type="text" id="sellBgColorInput" placeholder="#ff3b3b">
+</div>
+</div>
 </section>
 
-</div>
+<!-- Save Button -->
+<section style="text-align:center;">
+<button id="saveAll">Save Product Data</button>
+</section>
 
 <script>
-// Convert file to base64
+// Helper: convert file to base64
 function fileToBase64(file, callback){
   const reader = new FileReader();
-  reader.onload=function(e){callback(e.target.result);}
+  reader.onload = function(e){ callback(e.target.result); }
   reader.readAsDataURL(file);
 }
 
 // Product Key
-function getProductKey(){ return 'product_'+document.getElementById('productIdInput').value+'_';}
+function getProductKey(){
+  const id = document.getElementById('productSelect').value;
+  return 'product_'+id+'_';
+}
 
-// Header
+// ---------------- Header ----------------
 const headerPreview = document.getElementById('headerPreview');
-if(localStorage.getItem(getProductKey()+'header')) headerPreview.src = localStorage.getItem(getProductKey()+'header');
-
-document.getElementById('saveHeader').onclick = ()=>{
+function loadHeader(){
+  const data = localStorage.getItem('header_global');
+  headerPreview.src = data || '';
+}
+document.getElementById('headerImageUpload').onchange = ()=>{
   const file = document.getElementById('headerImageUpload').files[0];
   if(file){
     fileToBase64(file,(data)=>{
-      localStorage.setItem(getProductKey()+'header', data);
+      localStorage.setItem('header_global', data);
       headerPreview.src = data;
-      alert('Header Saved');
     });
-  }else alert('Select image');
+  }
 }
+loadHeader();
 
-// Slider
+// ---------------- Slider ----------------
 function renderSlider(){
   const sliderList = document.getElementById('sliderList');
   sliderList.innerHTML='';
@@ -103,26 +141,8 @@ function deleteSlider(i){
   localStorage.setItem(getProductKey()+'slider',JSON.stringify(sliders));
   renderSlider();
 }
-document.getElementById('saveSlider').onclick = ()=>{
-  const files = document.getElementById('sliderUpload').files;
-  if(files.length===0){ alert('Select images'); return;}
-  let sliders = JSON.parse(localStorage.getItem(getProductKey()+'slider')||'[]');
-  let count=0;
-  Array.from(files).forEach(file=>{
-    fileToBase64(file,(data)=>{
-      sliders.push(data);
-      count++;
-      if(count===files.length){
-        localStorage.setItem(getProductKey()+'slider',JSON.stringify(sliders));
-        renderSlider();
-        alert('Slider Saved');
-      }
-    });
-  });
-}
-renderSlider();
 
-// Bottom Images
+// ---------------- Bottom Images ----------------
 function renderBottom(){
   const bottomList = document.getElementById('bottomList');
   bottomList.innerHTML='';
@@ -140,38 +160,98 @@ function deleteBottom(i){
   localStorage.setItem(getProductKey()+'bottom',JSON.stringify(bottom));
   renderBottom();
 }
-document.getElementById('saveBottom').onclick = ()=>{
-  const files = document.getElementById('bottomUpload').files;
-  if(files.length===0){ alert('Select images'); return;}
-  let bottom = JSON.parse(localStorage.getItem(getProductKey()+'bottom')||'[]');
-  let count=0;
-  Array.from(files).forEach(file=>{
-    fileToBase64(file,(data)=>{
-      bottom.push(data);
-      count++;
-      if(count===files.length){
-        localStorage.setItem(getProductKey()+'bottom',JSON.stringify(bottom));
-        renderBottom();
-        alert('Bottom Saved');
-      }
-    });
+
+// ---------------- Storage / Size ----------------
+function renderSizes(){
+  const sizeList = document.getElementById('sizeList');
+  sizeList.innerHTML='';
+  const sizes = JSON.parse(localStorage.getItem(getProductKey()+'sizes')||'[]');
+  sizes.forEach((s,i)=>{
+    const div=document.createElement('div');
+    div.className='item-list';
+    div.innerHTML=`<span>${s}</span><button class="delete" onclick="deleteSize(${i})">Delete</button>`;
+    sizeList.appendChild(div);
   });
 }
-renderBottom();
-
-// Countdown
-document.getElementById('saveCountdown').onclick = ()=>{
-  const min = document.getElementById('timerMinutesInput').value;
-  localStorage.setItem(getProductKey()+'timer', min*60);
-  alert('Countdown Saved');
+function deleteSize(i){
+  let sizes = JSON.parse(localStorage.getItem(getProductKey()+'sizes')||'[]');
+  sizes.splice(i,1);
+  localStorage.setItem(getProductKey()+'sizes',JSON.stringify(sizes));
+  renderSizes();
+}
+document.getElementById('addSize').onclick = ()=>{
+  const val = document.getElementById('sizeInput').value.trim();
+  if(val===''){ alert('Enter size'); return;}
+  let sizes = JSON.parse(localStorage.getItem(getProductKey()+'sizes')||'[]');
+  sizes.push(val);
+  localStorage.setItem(getProductKey()+'sizes',JSON.stringify(sizes));
+  document.getElementById('sizeInput').value='';
+  renderSizes();
 }
 
-// Update on Product ID change
-document.getElementById('productIdInput').addEventListener('change',()=>{
-  if(localStorage.getItem(getProductKey()+'header')) headerPreview.src = localStorage.getItem(getProductKey()+'header');
-  else headerPreview.src = '';
+// ---------------- Countdown & Button ----------------
+function loadCountdown(){
+  document.getElementById('timerMinutesInput').value = localStorage.getItem(getProductKey()+'timerMinutes')||15;
+  document.getElementById('timerBgInput').value = localStorage.getItem(getProductKey()+'timerBg')||'#FFA500';
+  document.getElementById('sellTextInput').value = localStorage.getItem(getProductKey()+'sellText')||'Buy Now';
+  document.getElementById('sellTextColorInput').value = localStorage.getItem(getProductKey()+'sellTextColor')||'#ffffff';
+  document.getElementById('sellBgColorInput').value = localStorage.getItem(getProductKey()+'sellBg')||'#ff3b3b';
+}
+loadCountdown();
+
+// ---------------- Save All ----------------
+document.getElementById('saveAll').onclick = ()=>{
+  // Slider
+  const sliderFiles = document.getElementById('sliderUpload').files;
+  if(sliderFiles.length>0){
+    let sliders = JSON.parse(localStorage.getItem(getProductKey()+'slider')||'[]');
+    let count=0;
+    Array.from(sliderFiles).forEach(file=>{
+      fileToBase64(file,(data)=>{
+        sliders.push(data);
+        count++;
+        if(count===sliderFiles.length){
+          localStorage.setItem(getProductKey()+'slider',JSON.stringify(sliders));
+          renderSlider();
+        }
+      });
+    });
+  }
+
+  // Bottom
+  const bottomFiles = document.getElementById('bottomUpload').files;
+  if(bottomFiles.length>0){
+    let bottom = JSON.parse(localStorage.getItem(getProductKey()+'bottom')||'[]');
+    let count=0;
+    Array.from(bottomFiles).forEach(file=>{
+      fileToBase64(file,(data)=>{
+        bottom.push(data);
+        count++;
+        if(count===bottomFiles.length){
+          localStorage.setItem(getProductKey()+'bottom',JSON.stringify(bottom));
+          renderBottom();
+        }
+      });
+    });
+  }
+
+  // Countdown & Button
+  localStorage.setItem(getProductKey()+'timerMinutes', document.getElementById('timerMinutesInput').value);
+  localStorage.setItem(getProductKey()+'timerBg', document.getElementById('timerBgInput').value);
+  localStorage.setItem(getProductKey()+'sellText', document.getElementById('sellTextInput').value);
+  localStorage.setItem(getProductKey()+'sellTextColor', document.getElementById('sellTextColorInput').value);
+  localStorage.setItem(getProductKey()+'sellBg', document.getElementById('sellBgColorInput').value);
+
+  alert('Product Data Saved Successfully!');
+}
+
+// ---------------- Update on Product Select Change ----------------
+document.getElementById('productSelect').addEventListener('change', ()=>{
+  loadHeader();
   renderSlider();
   renderBottom();
+  renderSizes();
+  loadCountdown();
 });
 </script>
 </body>
