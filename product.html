@@ -16,9 +16,9 @@ header img{width:100%;object-fit:cover;}
 .details{background:#fff;padding:10px;margin:10px 0;border-radius:8px;}
 .details .discount{color:green;font-weight:bold;}
 .details .oldPrice{color:gray;text-decoration:line-through;margin-right:5px;}
-.countdown{background:orange;color:#fff;padding:10px;text-align:center;border-radius:5px;margin:10px 0;}
+.countdown{padding:10px;text-align:center;border-radius:5px;margin:10px 0;color:#fff;}
 .bottom-images img{width:100%;object-fit:cover;margin:10px 0;}
-.buttons{display:flex;gap:10px;position:fixed;bottom:0;width:100%;padding:10px;background:#fff;}
+.buttons{display:flex;gap:10px;position:fixed;bottom:0;width:100%;padding:10px;background:#fff;z-index:100;}
 .buttons button{flex:1;padding:15px;font-size:16px;border:none;border-radius:5px;cursor:pointer;}
 #addCart{background:#ff3b3b;color:#fff;}
 #buyNow{background:yellow;color:#000;}
@@ -35,12 +35,7 @@ header img{width:100%;object-fit:cover;}
 <div id="slider"></div>
 
 <!-- Storage Options -->
-<div id="storage">
-<label><input type="radio" name="storage" value="128GB">128GB</label>
-<label><input type="radio" name="storage" value="256GB">256GB</label>
-<label><input type="radio" name="storage" value="512GB">512GB</label>
-<label><input type="radio" name="storage" value="1TB">1TB</label>
-</div>
+<div id="storage"></div>
 
 <!-- Product Details -->
 <div class="details" id="productDetails"></div>
@@ -58,16 +53,16 @@ header img{width:100%;object-fit:cover;}
 </div>
 
 <script>
-// Load product ID
+// Get product ID from URL
 const params = new URLSearchParams(window.location.search);
-const id = params.get('id');
+const id = params.get('id') || 0;
 const key = 'product_'+id+'_';
 
-// Load Header Image
-const headerImg = localStorage.getItem(key+'header') || 'https://via.placeholder.com/1200x300?text=Header';
+// Header
+const headerImg = localStorage.getItem('header_global') || 'https://via.placeholder.com/1200x300?text=Header';
 document.getElementById('headerImage').src = headerImg;
 
-// Load Slider Images
+// Slider
 const sliderImgs = JSON.parse(localStorage.getItem(key+'slider')||'[]');
 const sliderContainer = document.getElementById('slider');
 if(sliderImgs.length>0){
@@ -91,13 +86,19 @@ if(sliderImgs.length>0){
     sliderContainer.appendChild(img);
 }
 
-// Storage Default
-const storageInputs=document.querySelectorAll('#storage input');
-storageInputs[0].checked=true;
+// Storage / Size
+const sizeList = JSON.parse(localStorage.getItem(key+'sizes')||'[]');
+const storageContainer = document.getElementById('storage');
+sizeList.forEach(size=>{
+    const label=document.createElement('label');
+    label.innerHTML=`<input type="radio" name="storage" value="${size}">${size}`;
+    storageContainer.appendChild(label);
+});
+if(storageContainer.firstChild) storageContainer.firstChild.querySelector('input').checked=true;
 
-// Load Product Details
-const products = JSON.parse(localStorage.getItem('products')||'[]');
-const product = products[id] || {name:'Product', oldPrice:1000, newPrice:799, discount:20, detail:'Product description here'};
+// Product Details
+let products = JSON.parse(localStorage.getItem('products')||'[]');
+let product = products[id] || {name:'Product '+(parseInt(id)+1), oldPrice:1000, newPrice:799, discount:20, detail:'Product description here'};
 const detailsDiv = document.getElementById('productDetails');
 detailsDiv.innerHTML=`
 <h2>${product.name}</h2>
@@ -107,8 +108,9 @@ detailsDiv.innerHTML=`
 `;
 
 // Countdown
-let countdown = parseInt(localStorage.getItem(key+'timer')||15*60);
+let countdown = parseInt(localStorage.getItem(key+'timerMinutes')||15*60);
 const countdownDiv = document.getElementById('countdown');
+countdownDiv.style.background = localStorage.getItem(key+'timerBg') || '#FFA500';
 function updateCountdown(){
     const m=Math.floor(countdown/60);
     const s=countdown%60;
