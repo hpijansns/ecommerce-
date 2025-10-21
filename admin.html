@@ -6,56 +6,60 @@
 <title>Admin Panel</title>
 <style>
 body{font-family:Arial,sans-serif;background:#f5f5f5;margin:0;padding:20px;}
-h2{margin-bottom:10px;color:#333;}
+h1,h2{color:#333;}
 section{background:#fff;padding:15px;margin-bottom:20px;border-radius:5px;box-shadow:0 2px 6px rgba(0,0,0,0.1);}
 label{display:block;margin:10px 0 5px;}
 input[type="text"], input[type="color"], input[type="number"], input[type="file"], select{padding:8px;width:100%;box-sizing:border-box;margin-bottom:10px;border-radius:5px;border:1px solid #ccc;}
 button{padding:10px 15px;border:none;border-radius:5px;background:#ff3b3b;color:white;cursor:pointer;margin-right:10px;margin-top:5px;}
 #sliderList img{width:80px;margin:5px;border:1px solid #ccc;border-radius:3px;cursor:pointer;}
+.flex-container{display:flex;gap:20px;flex-wrap:wrap;}
+.flex-item{flex:1;min-width:250px;}
 </style>
 </head>
 <body>
 <h1>Admin Panel</h1>
 
-<!-- Hero -->
 <section>
-<h2>Hero Image</h2>
-<input type="file" id="heroUpload">
-<label>Position:</label>
-<select id="heroPosition">
-<option value="center">Center</option>
-<option value="top">Top</option>
-<option value="bottom">Bottom</option>
-<option value="left">Left</option>
-<option value="right">Right</option>
-</select>
-<label>Zoom (%):</label>
-<input type="number" id="heroZoom" min="50" max="200" value="100">
-<button id="heroSave">Save Hero</button>
-<button id="heroDelete">Delete Hero</button>
-<img id="heroPreview" src="" style="width:100%;margin-top:10px;"/>
+<h2>Hero & Static Images</h2>
+<div class="flex-container">
+  <div class="flex-item">
+    <h3>Hero Image</h3>
+    <input type="file" id="heroUpload">
+    <label>Position:</label>
+    <select id="heroPosition">
+      <option value="center">Center</option>
+      <option value="top">Top</option>
+      <option value="bottom">Bottom</option>
+      <option value="left">Left</option>
+      <option value="right">Right</option>
+    </select>
+    <label>Zoom (%):</label>
+    <input type="number" id="heroZoom" min="50" max="200" value="100">
+    <button id="heroSave">Save Hero</button>
+    <button id="heroDelete">Delete Hero</button>
+    <img id="heroPreview" src="" style="width:100%;margin-top:10px;"/>
+  </div>
+
+  <div class="flex-item">
+    <h3>Static Image</h3>
+    <input type="file" id="staticUpload">
+    <label>Position:</label>
+    <select id="staticPosition">
+      <option value="center">Center</option>
+      <option value="top">Top</option>
+      <option value="bottom">Bottom</option>
+      <option value="left">Left</option>
+      <option value="right">Right</option>
+    </select>
+    <label>Zoom (%):</label>
+    <input type="number" id="staticZoom" min="50" max="200" value="100">
+    <button id="staticSave">Save Static</button>
+    <button id="staticDelete">Delete Static</button>
+    <img id="staticPreview" src="" style="width:100%;margin-top:10px;"/>
+  </div>
+</div>
 </section>
 
-<!-- Static -->
-<section>
-<h2>Static Image</h2>
-<input type="file" id="staticUpload">
-<label>Position:</label>
-<select id="staticPosition">
-<option value="center">Center</option>
-<option value="top">Top</option>
-<option value="bottom">Bottom</option>
-<option value="left">Left</option>
-<option value="right">Right</option>
-</select>
-<label>Zoom (%):</label>
-<input type="number" id="staticZoom" min="50" max="200" value="100">
-<button id="staticSave">Save Static</button>
-<button id="staticDelete">Delete Static</button>
-<img id="staticPreview" src="" style="width:100%;margin-top:10px;"/>
-</section>
-
-<!-- Slider -->
 <section>
 <h2>Slider Images (Max 5)</h2>
 <input type="file" id="sliderUpload" multiple>
@@ -63,27 +67,30 @@ button{padding:10px 15px;border:none;border-radius:5px;background:#ff3b3b;color:
 <button id="clearSlider">Clear Slider</button>
 </section>
 
-<!-- Countdown -->
 <section>
-<h2>Countdown Section</h2>
-<label>Sale Text:</label><input type="text" id="saleTextInput">
-<label>Text Color:</label><input type="color" id="saleTextColor">
-<label>Countdown Minutes:</label><input type="number" id="timerMinutes" min="1" value="20">
-<label>Background Color:</label><input type="color" id="timerBgColor">
-<button id="countdownSave">Save Countdown</button>
-</section>
+<h2>Countdown & Sell Button</h2>
+<div class="flex-container">
+  <div class="flex-item">
+    <h3>Countdown Section</h3>
+    <label>Sale Text:</label><input type="text" id="saleTextInput">
+    <label>Text Color:</label><input type="color" id="saleTextColor">
+    <label>Countdown Minutes:</label><input type="number" id="timerMinutes" min="1" value="20">
+    <label>Background Color:</label><input type="color" id="timerBgColor">
+    <button id="countdownSave">Save Countdown</button>
+  </div>
 
-<!-- Sell Button -->
-<section>
-<h2>Sell Button</h2>
-<label>Text:</label><input type="text" id="sellText">
-<label>Text Color:</label><input type="color" id="sellTextColor">
-<label>Background Color:</label><input type="color" id="sellBgColor">
-<button id="sellSave">Save Sell Button</button>
+  <div class="flex-item">
+    <h3>Sell Button</h3>
+    <label>Text:</label><input type="text" id="sellText">
+    <label>Text Color:</label><input type="color" id="sellTextColor">
+    <label>Background Color:</label><input type="color" id="sellBgColor">
+    <button id="sellSave">Save Sell Button</button>
+  </div>
+</div>
 </section>
 
 <script>
-// Utility
+// --- Utility ---
 function fileToDataURL(file, callback){
   const reader=new FileReader();
   reader.onload=e=>callback(e.target.result);
@@ -104,7 +111,7 @@ heroUpload.addEventListener('change', e=>{
   if(file) fileToDataURL(file,data=>{ heroPreview.src=data; heroFileData=data; });
 });
 heroSave.addEventListener('click', ()=>{
-  if(heroFileData){ localStorage.setItem('headerImage', heroFileData); }
+  if(heroFileData) localStorage.setItem('headerImage', heroFileData);
   localStorage.setItem('heroPosition', heroPosition.value);
   localStorage.setItem('heroZoom', heroZoom.value);
   alert('Hero Saved!');
@@ -144,7 +151,6 @@ staticDelete.addEventListener('click', ()=>{
 const sliderUpload=document.getElementById('sliderUpload');
 const sliderList=document.getElementById('sliderList');
 const clearSlider=document.getElementById('clearSlider');
-
 let sliderImages=JSON.parse(localStorage.getItem('sliderImages'))||[];
 
 function renderSliderList(){
@@ -175,7 +181,6 @@ sliderUpload.addEventListener('change', e=>{
     });
   });
 });
-
 clearSlider.addEventListener('click', ()=>{
   sliderImages=[];
   localStorage.removeItem('sliderImages');
@@ -183,4 +188,33 @@ clearSlider.addEventListener('click', ()=>{
   alert('All slider images cleared!');
 });
 
-//
+// --- Countdown ---
+const saleTextInput=document.getElementById('saleTextInput');
+const saleTextColor=document.getElementById('saleTextColor');
+const timerMinutes=document.getElementById('timerMinutes');
+const timerBgColor=document.getElementById('timerBgColor');
+const countdownSave=document.getElementById('countdownSave');
+
+countdownSave.addEventListener('click', ()=>{
+  localStorage.setItem('saleText', saleTextInput.value);
+  localStorage.setItem('saleTextColor', saleTextColor.value);
+  localStorage.setItem('timerMinutes', timerMinutes.value);
+  localStorage.setItem('timerBgColor', timerBgColor.value);
+  alert('Countdown Saved!');
+});
+
+// --- Sell Button ---
+const sellTextInput=document.getElementById('sellText');
+const sellTextColorInput=document.getElementById('sellTextColor');
+const sellBgColorInput=document.getElementById('sellBgColor');
+const sellSave=document.getElementById('sellSave');
+
+sellSave.addEventListener('click', ()=>{
+  localStorage.setItem('sellText', sellTextInput.value);
+  localStorage.setItem('sellTextColor', sellTextColorInput.value);
+  localStorage.setItem('sellBgColor', sellBgColorInput.value);
+  alert('Sell Button Saved!');
+});
+</script>
+</body>
+</html>
