@@ -6,119 +6,118 @@
 <title>Product Page</title>
 <style>
 body{margin:0;font-family:Arial,sans-serif;background:#f4f4f4;}
-header img{width:100%;height:auto;object-fit:cover;}
-#slider img{width:100%;display:none;object-fit:cover;}
-#slider img.active{display:block;}
-.details{padding:10px;}
-.oldPrice{color:gray;text-decoration:line-through;margin-right:5px;}
-.newPrice{font-weight:bold;color:#000;}
-.discount{color:green;font-weight:bold;}
-.storage{padding:10px;}
-.bottom-images{display:flex;gap:5px;padding:10px;}
-.bottom-images img{width:32%;object-fit:cover;}
-.buttons{display:flex;gap:5px;padding:10px;position:fixed;bottom:0;width:100%;background:#fff;}
-#addCart{flex:1;background:#ff3b3b;color:#fff;padding:10px;border:none;border-radius:5px;cursor:pointer;}
-#buyNow{flex:1;background:#FFD700;color:#000;padding:10px;border:none;border-radius:5px;cursor:pointer;}
-#countdown{padding:10px;background:#FFA500;color:#fff;font-weight:bold;}
+header img{width:100%;object-fit:cover;height:200px;}
+.slider img{width:100%;object-fit:cover;height:250px;display:none;}
+.slider img.active{display:block;}
+.container{max-width:800px;margin:auto;padding:10px;background:#fff;}
+.storage-select{margin:10px 0;}
+.storage-select select{padding:8px;width:100%;}
+.product-details{margin:10px 0;}
+.product-details .discount{color:green;font-weight:bold;}
+.product-details .oldPrice{color:gray;text-decoration:line-through;margin-right:5px;}
+.countdown{margin:15px 0;padding:10px;background:#fff3e0;color:#ff6600;font-weight:bold;border-radius:5px;}
+.bottom-images{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0;}
+.bottom-images img{flex:1 1 calc(33% - 10px);max-width:100%;height:auto;object-fit:cover;border-radius:5px;}
+.buttons{position:fixed;bottom:0;left:0;width:100%;display:flex;gap:5px;padding:10px;background:#fff;box-shadow:0 -2px 5px rgba(0,0,0,0.2);}
+.buttons button{flex:1;padding:12px;font-weight:bold;border:none;border-radius:5px;cursor:pointer;}
+#addCart{background:#ff3b3b;color:#fff;}
+#buyNow{background:#ffcc00;color:#000;}
 </style>
 </head>
 <body>
 
 <header>
-  <img id="headerImage" src="" alt="Header">
+  <img id="headerImage" src="https://via.placeholder.com/800x200?text=Header+Image" alt="Header Image">
 </header>
 
-<div id="slider"></div>
+<div class="slider" id="slider"></div>
 
-<div class="storage">
-  <label>Select Storage:</label>
-  <select id="storageSelect">
-    <option value="128GB">128GB</option>
-    <option value="256GB">256GB</option>
-    <option value="512GB">512GB</option>
-    <option value="1TB">1TB</option>
-  </select>
+<div class="container">
+  <!-- Storage Select -->
+  <div class="storage-select">
+    <label for="storageSelect">Select Storage:</label>
+    <select id="storageSelect">
+      <option value="128">128GB</option>
+      <option value="256">256GB</option>
+      <option value="512">512GB</option>
+      <option value="1024">1TB</option>
+    </select>
+  </div>
+
+  <!-- Product Details -->
+  <div class="product-details" id="productDetails"></div>
+
+  <!-- Countdown -->
+  <div class="countdown" id="countdown">Time Left: <span id="timer"></span></div>
+
+  <!-- Bottom Images -->
+  <div class="bottom-images" id="bottomImages">
+    <img src="https://via.placeholder.com/250x150?text=Bottom+1" alt="">
+    <img src="https://via.placeholder.com/250x150?text=Bottom+2" alt="">
+    <img src="https://via.placeholder.com/250x150?text=Bottom+3" alt="">
+  </div>
 </div>
 
-<div class="details" id="productDetails"></div>
-
-<div id="countdown">Time Left: <span id="timer">20:00</span></div>
-
-<div class="bottom-images" id="bottomImages"></div>
-
+<!-- Fixed Buttons -->
 <div class="buttons">
   <button id="addCart">Add to Cart</button>
   <button id="buyNow">Buy Now</button>
 </div>
 
 <script>
-// Product ID
+// Get product id
 const params = new URLSearchParams(window.location.search);
-const id = params.get('id') || 0;
+const id = params.get('id');
 
-// Load product details
+// Load products
 const products = JSON.parse(localStorage.getItem('products')||'[]');
-const product = products[id] || {name:'Product', oldPrice:1000, newPrice:499, discount:50};
+const product = products[id];
 
-const details = document.getElementById('productDetails');
-details.innerHTML = `
-  <h2>${product.name}</h2>
-  <p><span class="oldPrice">₹${product.oldPrice}</span><span class="newPrice">₹${product.newPrice}</span></p>
-  <p class="discount">${product.discount}% OFF</p>
-`;
-
-// Header image
-const headerImg = document.getElementById('headerImage');
-headerImg.src = localStorage.getItem('product_'+id+'_header') || 'https://via.placeholder.com/1200x200?text=Header+Image';
-
-// Slider images
-const sliderContainer = document.getElementById('slider');
-const sliderImages = JSON.parse(localStorage.getItem('product_'+id+'_slider')||'[]');
-if(sliderImages.length>0){
-  sliderImages.forEach((img,i)=>{
-    const image = document.createElement('img');
-    image.src = img;
-    if(i===0) image.classList.add('active');
-    sliderContainer.appendChild(image);
-  });
-  let current = 0;
-  setInterval(()=>{
-    const imgs = sliderContainer.querySelectorAll('img');
-    imgs[current].classList.remove('active');
-    current = (current+1)%imgs.length;
-    imgs[current].classList.add('active');
-  },3000);
+// Render product details
+const detailsDiv = document.getElementById('productDetails');
+if(product){
+  detailsDiv.innerHTML = `
+    <h2>${product.name}</h2>
+    <img src="${product.image}" style="width:100%;height:200px;object-fit:cover;" alt="${product.name}">
+    <p><span class="oldPrice">₹${product.oldPrice}</span> <span class="newPrice">₹${product.newPrice}</span></p>
+    <p class="discount">${product.discount}% OFF</p>
+    <p>${product.delivery || 'Free Delivery in 2 Days'}</p>
+  `;
+}else{
+  detailsDiv.innerHTML = '<p>Product not found</p>';
 }
+
+// Slider
+const sliderImages = JSON.parse(localStorage.getItem('product_'+id+'_slider')||'["https://via.placeholder.com/800x250?text=Slide+1","https://via.placeholder.com/800x250?text=Slide+2"]');
+const sliderDiv = document.getElementById('slider');
+sliderImages.forEach((src,i)=>{
+  const img = document.createElement('img');
+  img.src = src;
+  if(i===0) img.classList.add('active');
+  sliderDiv.appendChild(img);
+});
+let current=0;
+setInterval(()=>{
+  const imgs = sliderDiv.querySelectorAll('img');
+  imgs[current].classList.remove('active');
+  current = (current+1)%imgs.length;
+  imgs[current].classList.add('active');
+},3000);
 
 // Countdown
 let countdown = parseInt(localStorage.getItem('product_'+id+'_timerMinutes')||20)*60;
 const timerEl = document.getElementById('timer');
-setInterval(()=>{
+function updateTimer(){
   const m = Math.floor(countdown/60);
   const s = countdown%60;
   timerEl.innerText = `${m}:${s<10?'0'+s:s}`;
   countdown--;
   if(countdown<0) countdown=0;
-},1000);
-
-// Bottom images
-const bottomContainer = document.getElementById('bottomImages');
-const bottomImages = JSON.parse(localStorage.getItem('product_'+id+'_bottom')||'[]');
-if(bottomImages.length>0){
-  bottomImages.forEach(img=>{
-    const image = document.createElement('img');
-    image.src = img;
-    bottomContainer.appendChild(image);
-  });
-} else {
-  for(let i=1;i<=3;i++){
-    const img = document.createElement('img');
-    img.src = `https://via.placeholder.com/200x100?text=Image${i}`;
-    bottomContainer.appendChild(img);
-  }
 }
+updateTimer();
+setInterval(updateTimer,1000);
 
-// Buttons
+// Button click
 document.getElementById('addCart').onclick = ()=>{
   window.location.href = 'nextpage.html';
 }
