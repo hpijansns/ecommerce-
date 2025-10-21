@@ -3,72 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Custom Landing Page</title>
+<title>Landing Page</title>
 <style>
 body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;}
-/* Header */
+
+/* Hero */
 header{position:relative;}
-header img#heroImage{width:100%;height:400px;object-fit:cover;display:block;}
+#heroImage{width:100%;height:400px;object-fit:contain;display:block;transition:transform 0.3s;}
 #searchContainer{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;gap:5px;}
 #searchContainer input{padding:10px;width:250px;border-radius:5px;border:1px solid #ccc;}
 #searchContainer button{padding:10px 15px;border:none;border-radius:5px;background:#ff3b3b;color:white;cursor:pointer;}
 
 /* Static Image */
-#staticImage{width:100%;margin-top:10px;display:block;object-fit:cover;}
+#staticImage{width:100%;height:auto;object-fit:contain;display:block;transition:transform 0.3s;}
 
 /* Slider */
-#sliderContainer{width:100%;overflow:hidden;position:relative;margin-top:20px;}
+#sliderContainer{width:100%;overflow:hidden;position:relative;height:250px;margin-top:20px;}
 #sliderImages{display:flex;transition:transform 0.5s ease-in-out;}
-#sliderImages img{width:100%;flex-shrink:0;height:250px;object-fit:cover;margin:0;} /* gapless */
+#sliderImages img{flex-shrink:0;width:100%;height:100%;object-fit:contain;transition:transform 0.3s;}
 
 /* Countdown + Sell Button */
-#countdownSection{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:40px; 
-  margin:30px 0;
-  flex-wrap:wrap;
-}
-#timerBox{
-  background:#fff;
-  padding:15px 25px;
-  border-radius:5px;
-  text-align:center;
-  box-shadow:0 2px 6px rgba(0,0,0,0.2);
-}
-#saleText{
-  font-size:18px;
-  font-weight:bold;
-  color:#ff3b3b;
-  margin-bottom:5px;
-}
-#timer{
-  font-size:24px;
-  font-weight:bold;
-  color:#333;
-}
-#sellButton{
-  padding:15px 30px;
-  background:#ff3b3b;
-  color:white;
-  border:none;
-  border-radius:5px;
-  cursor:pointer;
-  font-size:18px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.2);
-}
-@media(max-width:768px){
-  #countdownSection{
-    flex-direction:column;
-    gap:10px;
-  }
-}
+#countdownSection{display:flex;justify-content:center;align-items:center;gap:40px;margin:30px 0;flex-wrap:wrap;}
+#timerBox{background:#fff;padding:15px 25px;border-radius:5px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.2);}
+#saleText{font-size:18px;font-weight:bold;color:#ff3b3b;margin-bottom:5px;}
+#timer{font-size:24px;font-weight:bold;color:#333;}
+#sellButton{padding:15px 30px;background:#ff3b3b;color:white;border:none;border-radius:5px;cursor:pointer;font-size:18px;box-shadow:0 2px 6px rgba(0,0,0,0.2);}
+@media(max-width:768px){#countdownSection{flex-direction:column;gap:10px;}}
 </style>
 </head>
 <body>
 
-<!-- Header Hero -->
 <header>
 <img id="heroImage" src="header-placeholder.jpg" alt="Hero">
 <div id="searchContainer">
@@ -77,15 +41,12 @@ header img#heroImage{width:100%;height:400px;object-fit:cover;display:block;}
 </div>
 </header>
 
-<!-- Static Image -->
 <img id="staticImage" src="static-placeholder.jpg" alt="Static Image">
 
-<!-- Slider -->
 <div id="sliderContainer">
 <div id="sliderImages"></div>
 </div>
 
-<!-- Countdown + Sell -->
 <div id="countdownSection">
   <div id="timerBox">
     <div id="saleText">Sale of the Day</div>
@@ -95,59 +56,75 @@ header img#heroImage{width:100%;height:400px;object-fit:cover;display:block;}
 </div>
 
 <script>
-// --- Hero Image ---
-const heroImage = document.getElementById('heroImage');
-const savedHero = localStorage.getItem('headerImage');
-if(savedHero){ heroImage.src = savedHero; }
+// --- Hero & Static ---
+const heroImage=document.getElementById('heroImage');
+const staticImage=document.getElementById('staticImage');
 
-// --- Static Image ---
-const staticImage = document.getElementById('staticImage');
-const savedStatic = localStorage.getItem('staticImage');
-if(savedStatic){ staticImage.src = savedStatic; }
+// Load saved hero
+const savedHero=localStorage.getItem('headerImage');
+if(savedHero){
+  heroImage.src=savedHero;
+  heroImage.style.objectPosition=localStorage.getItem('heroPosition')||'center';
+  heroImage.style.transform=`scale(${(localStorage.getItem('heroZoom')||100)/100})`;
+}
 
-// --- Slider Images ---
-let sliderImagesContainer = document.getElementById('sliderImages');
-let sliderImages = JSON.parse(localStorage.getItem('sliderImages')) || [
-  'slide1.jpg','slide2.jpg','slide3.jpg','slide4.jpg','slide5.jpg'
-];
+// Load saved static
+const savedStatic=localStorage.getItem('staticImage');
+if(savedStatic){
+  staticImage.src=savedStatic;
+  staticImage.style.objectPosition=localStorage.getItem('staticPosition')||'center';
+  staticImage.style.transform=`scale(${(localStorage.getItem('staticZoom')||100)/100})`;
+}
+
+// --- Slider ---
+let sliderImagesContainer=document.getElementById('sliderImages');
+let sliderImages=JSON.parse(localStorage.getItem('sliderImages'))||[];
 
 function renderSlider(){
   sliderImagesContainer.innerHTML='';
-  sliderImages.forEach(src=>{
-    const img = document.createElement('img');
-    img.src = src;
+  sliderImages.forEach((src,i)=>{
+    const img=document.createElement('img');
+    img.src=src;
+    img.style.objectPosition=localStorage.getItem(`sliderPos_${i}`)||'center';
+    img.style.transform=`scale(${(localStorage.getItem(`sliderZoom_${i}`)||100)/100})`;
     sliderImagesContainer.appendChild(img);
   });
 }
 renderSlider();
 
-let currentIndex = 0;
+// Auto-slide
+let currentIndex=0;
 function autoSlide(){
+  if(sliderImages.length==0) return;
   currentIndex++;
-  if(currentIndex >= sliderImages.length){ currentIndex = 0; }
-  const offset = -currentIndex * sliderImagesContainer.clientWidth;
-  sliderImagesContainer.style.transform = `translateX(${offset}px)`;
+  if(currentIndex>=sliderImages.length) currentIndex=0;
+  sliderImagesContainer.style.transform=`translateX(${-currentIndex*sliderImagesContainer.clientWidth}px)`;
 }
-setInterval(autoSlide, 1000);
-window.addEventListener('resize', ()=>{ sliderImagesContainer.style.transform = `translateX(${-currentIndex*sliderImagesContainer.clientWidth}px)`; });
+setInterval(autoSlide,3000);
+window.addEventListener('resize',()=>{ sliderImagesContainer.style.transform=`translateX(${-currentIndex*sliderImagesContainer.clientWidth}px)`; });
 
 // --- Countdown Timer ---
-let totalTime = 20*60; // 20 minutes in seconds
-const timerDisplay = document.getElementById('timer');
+let totalTime=(localStorage.getItem('timerMinutes')||20)*60;
+const timerDisplay=document.getElementById('timer');
 function updateTimer(){
-  const minutes = Math.floor(totalTime/60);
-  const seconds = totalTime % 60;
-  timerDisplay.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+  const minutes=Math.floor(totalTime/60);
+  const seconds=totalTime%60;
+  timerDisplay.textContent=`${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
   if(totalTime>0) totalTime--;
   else clearInterval(countdownInterval);
 }
-const countdownInterval = setInterval(updateTimer,1000);
+const countdownInterval=setInterval(updateTimer,1000);
 updateTimer();
 
-// --- Sell Button ---
-const sellButton = document.getElementById('sellButton');
-sellButton.addEventListener('click',()=>{ alert('Sell is Live clicked!'); });
-
+// Load countdown & sell styles
+document.getElementById('saleText').textContent=localStorage.getItem('saleText')||'Sale of the Day';
+document.getElementById('saleText').style.color=localStorage.getItem('saleTextColor')||'#ff3b3b';
+document.getElementById('timerBox').style.background=localStorage.getItem('timerBgColor')||'#ffffff';
+const sellBtn=document.getElementById('sellButton');
+sellBtn.textContent=localStorage.getItem('sellText')||'Sell is Live';
+sellBtn.style.color=localStorage.getItem('sellTextColor')||'#ffffff';
+sellBtn.style.background=localStorage.getItem('sellBgColor')||'#ff3b3b';
+sellBtn.addEventListener('click',()=>{ alert('Sell is Live clicked!'); });
 </script>
 </body>
 </html>
