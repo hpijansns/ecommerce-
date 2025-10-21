@@ -7,7 +7,7 @@
 <style>
 body{font-family:Arial,sans-serif;background:#f0f0f0;margin:0;padding:0;}
 .container{max-width:1200px;margin:auto;padding:20px;background:#fff;}
-h2{margin-top:0;color:#333;}
+h1,h2{color:#333;}
 section{margin-bottom:30px;padding:10px;border:1px solid #ccc;border-radius:8px;background:#fafafa;}
 label{display:block;margin:5px 0;font-weight:bold;}
 input[type=text], input[type=number], input[type=file], select{width:100%;padding:5px;margin-bottom:10px;}
@@ -43,15 +43,15 @@ img.preview{width:100px;height:80px;object-fit:cover;margin-right:5px;border:1px
 <button id="saveSlider">Save Slider</button>
 </section>
 
-<!-- Product Main Image -->
+<!-- Small Admin Image -->
 <section>
-<h2>Product Main Image</h2>
-<input type="file" id="productImageUpload" accept="image/*">
-<img id="productPreview" class="preview" src="">
-<button id="saveProductImage">Save Product Image</button>
+<h2>Small Admin Image</h2>
+<input type="file" id="smallImageUpload" accept="image/*">
+<img id="smallPreview" class="preview" src="">
+<button id="saveSmallImage">Save Small Image</button>
 </section>
 
-<!-- Bottom 3 Images -->
+<!-- Bottom Images -->
 <section>
 <h2>Bottom Images</h2>
 <input type="file" id="bottomUpload" accept="image/*" multiple>
@@ -65,7 +65,7 @@ img.preview{width:100px;height:80px;object-fit:cover;margin-right:5px;border:1px
 <div class="flex-row">
 <div>
 <label>Countdown Minutes</label>
-<input type="number" id="timerMinutesInput" value="20">
+<input type="number" id="timerMinutesInput" value="15">
 <label>Countdown Background Color</label>
 <input type="text" id="timerBgInput" placeholder="#FFA500">
 </div>
@@ -84,126 +84,142 @@ img.preview{width:100px;height:80px;object-fit:cover;margin-right:5px;border:1px
 </div>
 
 <script>
-// Convert file to base64
-function fileToBase64(file){ 
-  return new Promise((resolve,reject)=>{
-    const reader = new FileReader();
-    reader.onload = e=>resolve(e.target.result);
-    reader.onerror = e=>reject(e);
-    reader.readAsDataURL(file);
-  });
+// Helper: convert file to base64
+function fileToBase64(file, callback){
+  const reader = new FileReader();
+  reader.onload = function(e){ callback(e.target.result); }
+  reader.readAsDataURL(file);
 }
 
 // Get current product key
-function getProductKey(){ return 'product_'+document.getElementById('productIdInput').value+'_' }
-
-// Load previews
-function loadPreviews(){
-  const key = getProductKey();
-  document.getElementById('headerPreview').src = localStorage.getItem(key+'header') || '';
-  document.getElementById('productPreview').src = localStorage.getItem(key+'main') || '';
-  renderSlider();
-  renderBottom();
+function getProductKey(){
+  const id = document.getElementById('productIdInput').value;
+  return 'product_'+id+'_';
 }
 
-// HEADER
-document.getElementById('saveHeader').onclick = async ()=>{
+// Header
+const headerPreview = document.getElementById('headerPreview');
+if(localStorage.getItem(getProductKey()+'header')) headerPreview.src = localStorage.getItem(getProductKey()+'header');
+
+document.getElementById('saveHeader').onclick = ()=>{
   const file = document.getElementById('headerImageUpload').files[0];
-  if(!file){ alert('Select an image'); return; }
-  const data = await fileToBase64(file);
-  localStorage.setItem(getProductKey()+'header',data);
-  document.getElementById('headerPreview').src = data;
-  alert('Header Saved');
+  if(file){
+    fileToBase64(file,(data)=>{
+      localStorage.setItem(getProductKey()+'header', data);
+      headerPreview.src = data;
+      alert('Header Saved');
+    });
+  }else alert('Select an image');
 }
 
-// SLIDER
+// Slider
 function renderSlider(){
-  const list = document.getElementById('sliderList');
+  const sliderList = document.getElementById('sliderList');
+  sliderList.innerHTML='';
   const sliders = JSON.parse(localStorage.getItem(getProductKey()+'slider')||'[]');
-  list.innerHTML='';
   sliders.forEach((img,i)=>{
-    const div=document.createElement('div');
+    const div = document.createElement('div');
     div.className='item-list';
     div.innerHTML=`<img src="${img}" class="preview"><button class="delete" onclick="deleteSlider(${i})">Delete</button>`;
-    list.appendChild(div);
+    sliderList.appendChild(div);
   });
 }
 function deleteSlider(i){
-  const sliders = JSON.parse(localStorage.getItem(getProductKey()+'slider')||'[]');
+  let sliders = JSON.parse(localStorage.getItem(getProductKey()+'slider')||'[]');
   sliders.splice(i,1);
   localStorage.setItem(getProductKey()+'slider',JSON.stringify(sliders));
   renderSlider();
 }
-document.getElementById('saveSlider').onclick = async ()=>{
+document.getElementById('saveSlider').onclick = ()=>{
   const files = document.getElementById('sliderUpload').files;
-  if(files.length===0){ alert('Select images'); return; }
-  const sliders = JSON.parse(localStorage.getItem(getProductKey()+'slider')||'[]');
-  for(const file of files){
-    const data = await fileToBase64(file);
-    sliders.push(data);
-  }
-  localStorage.setItem(getProductKey()+'slider',JSON.stringify(sliders));
-  renderSlider();
-  alert('Slider Saved');
+  if(files.length===0){ alert('Select images'); return;}
+  let sliders = JSON.parse(localStorage.getItem(getProductKey()+'slider')||'[]');
+  let count=0;
+  Array.from(files).forEach(file=>{
+    fileToBase64(file,(data)=>{
+      sliders.push(data);
+      count++;
+      if(count===files.length){
+        localStorage.setItem(getProductKey()+'slider',JSON.stringify(sliders));
+        renderSlider();
+        alert('Slider Saved');
+      }
+    });
+  });
+}
+renderSlider();
+
+// Small Admin Image
+const smallPreview = document.getElementById('smallPreview');
+if(localStorage.getItem(getProductKey()+'small')) smallPreview.src = localStorage.getItem(getProductKey()+'small');
+document.getElementById('saveSmallImage').onclick = ()=>{
+  const file = document.getElementById('smallImageUpload').files[0];
+  if(file){
+    fileToBase64(file,(data)=>{
+      localStorage.setItem(getProductKey()+'small', data);
+      smallPreview.src = data;
+      alert('Small Image Saved');
+    });
+  }else alert('Select an image');
 }
 
-// PRODUCT IMAGE
-document.getElementById('saveProductImage').onclick = async ()=>{
-  const file = document.getElementById('productImageUpload').files[0];
-  if(!file){ alert('Select an image'); return; }
-  const data = await fileToBase64(file);
-  localStorage.setItem(getProductKey()+'main',data);
-  document.getElementById('productPreview').src = data;
-  alert('Product Image Saved');
-}
-
-// BOTTOM IMAGES
+// Bottom Images
 function renderBottom(){
-  const list = document.getElementById('bottomList');
+  const bottomList = document.getElementById('bottomList');
+  bottomList.innerHTML='';
   const bottom = JSON.parse(localStorage.getItem(getProductKey()+'bottom')||'[]');
-  list.innerHTML='';
   bottom.forEach((img,i)=>{
-    const div=document.createElement('div');
+    const div = document.createElement('div');
     div.className='item-list';
-    div.innerHTML=`<img src="${img}" class="preview" style="width:100%;height:auto;"><button class="delete" onclick="deleteBottom(${i})">Delete</button>`;
-    list.appendChild(div);
+    div.innerHTML=`<img src="${img}" class="preview"><button class="delete" onclick="deleteBottom(${i})">Delete</button>`;
+    bottomList.appendChild(div);
   });
 }
 function deleteBottom(i){
-  const bottom = JSON.parse(localStorage.getItem(getProductKey()+'bottom')||'[]');
+  let bottom = JSON.parse(localStorage.getItem(getProductKey()+'bottom')||'[]');
   bottom.splice(i,1);
   localStorage.setItem(getProductKey()+'bottom',JSON.stringify(bottom));
   renderBottom();
 }
-document.getElementById('saveBottom').onclick = async ()=>{
+document.getElementById('saveBottom').onclick = ()=>{
   const files = document.getElementById('bottomUpload').files;
-  if(files.length===0){ alert('Select images'); return; }
-  const bottom = JSON.parse(localStorage.getItem(getProductKey()+'bottom')||'[]');
-  for(const file of files){
-    const data = await fileToBase64(file);
-    bottom.push(data);
-  }
-  localStorage.setItem(getProductKey()+'bottom',JSON.stringify(bottom));
-  renderBottom();
-  alert('Bottom Images Saved');
+  if(files.length===0){ alert('Select images'); return;}
+  let bottom = JSON.parse(localStorage.getItem(getProductKey()+'bottom')||'[]');
+  let count=0;
+  Array.from(files).forEach(file=>{
+    fileToBase64(file,(data)=>{
+      bottom.push(data);
+      count++;
+      if(count===files.length){
+        localStorage.setItem(getProductKey()+'bottom',JSON.stringify(bottom));
+        renderBottom();
+        alert('Bottom Images Saved');
+      }
+    });
+  });
 }
+renderBottom();
 
-// COUNTDOWN & BUTTON
+// Countdown & Button
 document.getElementById('saveCountdown').onclick = ()=>{
-  const key = getProductKey();
-  localStorage.setItem(key+'timerMinutes', document.getElementById('timerMinutesInput').value);
-  localStorage.setItem(key+'timerBg', document.getElementById('timerBgInput').value);
-  localStorage.setItem(key+'sellText', document.getElementById('sellTextInput').value);
-  localStorage.setItem(key+'sellTextColor', document.getElementById('sellTextColorInput').value);
-  localStorage.setItem(key+'sellBg', document.getElementById('sellBgColorInput').value);
+  localStorage.setItem(getProductKey()+'timerMinutes', document.getElementById('timerMinutesInput').value);
+  localStorage.setItem(getProductKey()+'timerBg', document.getElementById('timerBgInput').value);
+  localStorage.setItem(getProductKey()+'sellText', document.getElementById('sellTextInput').value);
+  localStorage.setItem(getProductKey()+'sellTextColor', document.getElementById('sellTextColorInput').value);
+  localStorage.setItem(getProductKey()+'sellBg', document.getElementById('sellBgColorInput').value);
   alert('Countdown & Button Saved');
 }
 
-// UPDATE ON PRODUCT ID CHANGE
-document.getElementById('productIdInput').addEventListener('change',loadPreviews);
-
-// INITIAL LOAD
-loadPreviews();
+// Update preview when product ID changes
+document.getElementById('productIdInput').addEventListener('change', ()=>{
+  renderSlider();
+  renderBottom();
+  if (localStorage.getItem(getProductKey()+'header')) headerPreview.src = localStorage.getItem(getProductKey()+'header');
+  else headerPreview.src = '';
+  
+  if(localStorage.getItem(getProductKey()+'small')) smallPreview.src = localStorage.getItem(getProductKey()+'small');
+  else smallPreview.src = '';
+});
 </script>
 </body>
 </html>
