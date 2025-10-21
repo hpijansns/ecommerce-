@@ -60,50 +60,53 @@ img.preview{width:100px;height:80px;object-fit:cover;margin-right:5px;border:1px
 </div>
 
 <script>
-// Helper: convert file to base64
+// Convert file to base64
 function fileToBase64(file, callback){
-  const reader=new FileReader();
+  const reader = new FileReader();
   reader.onload=function(e){callback(e.target.result);}
   reader.readAsDataURL(file);
 }
 
-// Current Product Key
+// Product Key
 function getProductKey(){ return 'product_'+document.getElementById('productIdInput').value+'_';}
 
 // Header
-const headerPreview=document.getElementById('headerPreview');
-if(localStorage.getItem(getProductKey()+'header')) headerPreview.src=localStorage.getItem(getProductKey()+'header');
-document.getElementById('saveHeader').onclick=()=>{
-  const file=document.getElementById('headerImageUpload').files[0];
-  if(file){fileToBase64(file,(data)=>{
-    localStorage.setItem(getProductKey()+'header',data);
-    headerPreview.src=data;
-    alert('Header Saved');
-  });}else alert('Select image');
+const headerPreview = document.getElementById('headerPreview');
+if(localStorage.getItem(getProductKey()+'header')) headerPreview.src = localStorage.getItem(getProductKey()+'header');
+
+document.getElementById('saveHeader').onclick = ()=>{
+  const file = document.getElementById('headerImageUpload').files[0];
+  if(file){
+    fileToBase64(file,(data)=>{
+      localStorage.setItem(getProductKey()+'header', data);
+      headerPreview.src = data;
+      alert('Header Saved');
+    });
+  }else alert('Select image');
 }
 
 // Slider
 function renderSlider(){
-  const sliderList=document.getElementById('sliderList');
+  const sliderList = document.getElementById('sliderList');
   sliderList.innerHTML='';
-  const sliders=JSON.parse(localStorage.getItem(getProductKey()+'slider')||'[]');
+  const sliders = JSON.parse(localStorage.getItem(getProductKey()+'slider')||'[]');
   sliders.forEach((img,i)=>{
-    const div=document.createElement('div');
+    const div = document.createElement('div');
     div.className='item-list';
     div.innerHTML=`<img src="${img}" class="preview"><button class="delete" onclick="deleteSlider(${i})">Delete</button>`;
     sliderList.appendChild(div);
   });
 }
 function deleteSlider(i){
-  let sliders=JSON.parse(localStorage.getItem(getProductKey()+'slider')||'[]');
+  let sliders = JSON.parse(localStorage.getItem(getProductKey()+'slider')||'[]');
   sliders.splice(i,1);
   localStorage.setItem(getProductKey()+'slider',JSON.stringify(sliders));
   renderSlider();
 }
-document.getElementById('saveSlider').onclick=()=>{
-  const files=document.getElementById('sliderUpload').files;
-  if(files.length===0){alert('Select images');return;}
-  let sliders=JSON.parse(localStorage.getItem(getProductKey()+'slider')||'[]');
+document.getElementById('saveSlider').onclick = ()=>{
+  const files = document.getElementById('sliderUpload').files;
+  if(files.length===0){ alert('Select images'); return;}
+  let sliders = JSON.parse(localStorage.getItem(getProductKey()+'slider')||'[]');
   let count=0;
   Array.from(files).forEach(file=>{
     fileToBase64(file,(data)=>{
@@ -119,28 +122,28 @@ document.getElementById('saveSlider').onclick=()=>{
 }
 renderSlider();
 
-// Bottom
+// Bottom Images
 function renderBottom(){
-  const bottomList=document.getElementById('bottomList');
+  const bottomList = document.getElementById('bottomList');
   bottomList.innerHTML='';
-  const bottom=JSON.parse(localStorage.getItem(getProductKey()+'bottom')||'[]');
+  const bottom = JSON.parse(localStorage.getItem(getProductKey()+'bottom')||'[]');
   bottom.forEach((img,i)=>{
-    const div=document.createElement('div');
+    const div = document.createElement('div');
     div.className='item-list';
     div.innerHTML=`<img src="${img}" class="preview"><button class="delete" onclick="deleteBottom(${i})">Delete</button>`;
     bottomList.appendChild(div);
   });
 }
 function deleteBottom(i){
-  let bottom=JSON.parse(localStorage.getItem(getProductKey()+'bottom')||'[]');
+  let bottom = JSON.parse(localStorage.getItem(getProductKey()+'bottom')||'[]');
   bottom.splice(i,1);
   localStorage.setItem(getProductKey()+'bottom',JSON.stringify(bottom));
   renderBottom();
 }
-document.getElementById('saveBottom').onclick=()=>{
-  const files=document.getElementById('bottomUpload').files;
-  if(files.length===0){alert('Select images');return;}
-  let bottom=JSON.parse(localStorage.getItem(getProductKey()+'bottom')||'[]');
+document.getElementById('saveBottom').onclick = ()=>{
+  const files = document.getElementById('bottomUpload').files;
+  if(files.length===0){ alert('Select images'); return;}
+  let bottom = JSON.parse(localStorage.getItem(getProductKey()+'bottom')||'[]');
   let count=0;
   Array.from(files).forEach(file=>{
     fileToBase64(file,(data)=>{
@@ -157,16 +160,16 @@ document.getElementById('saveBottom').onclick=()=>{
 renderBottom();
 
 // Countdown
-document.getElementById('saveCountdown').onclick=()=>{
-  const min=document.getElementById('timerMinutesInput').value;
-  localStorage.setItem(getProductKey()+'timer',min*60);
+document.getElementById('saveCountdown').onclick = ()=>{
+  const min = document.getElementById('timerMinutesInput').value;
+  localStorage.setItem(getProductKey()+'timer', min*60);
   alert('Countdown Saved');
 }
 
-// Update previews on product ID change
+// Update on Product ID change
 document.getElementById('productIdInput').addEventListener('change',()=>{
-  if(localStorage.getItem(getProductKey()+'header')) headerPreview.src=localStorage.getItem(getProductKey()+'header');
-  else headerPreview.src='';
+  if(localStorage.getItem(getProductKey()+'header')) headerPreview.src = localStorage.getItem(getProductKey()+'header');
+  else headerPreview.src = '';
   renderSlider();
   renderBottom();
 });
