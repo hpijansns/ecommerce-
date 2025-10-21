@@ -5,19 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>E-Commerce Landing</title>
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;}
+body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;padding-top:200px;}
 
 /* Hero fixed top */
 header{position:fixed;top:0;left:0;width:100%;height:200px;z-index:1000;overflow:hidden;}
-#heroImage{width:100%;height:100%;object-fit:cover;transition:transform 0.3s;}
+#heroImage{width:100%;height:100%;object-fit:contain;transition:transform 0.3s;}
 
 /* Search bar overlay */
 #searchContainer{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;gap:5px;}
 #searchContainer input{padding:10px;width:200px;border-radius:5px;border:1px solid #ccc;}
 #searchContainer button{padding:10px 15px;border:none;border-radius:5px;background:#ff3b3b;color:white;cursor:pointer;}
-
-/* Add top padding for body after fixed header */
-body{padding-top:200px;}
 
 /* Static Image */
 #staticImage{width:100%;height:auto;display:block;margin-top:10px;object-fit:contain;transition:transform 0.3s;}
@@ -69,16 +66,14 @@ const staticImage=document.getElementById('staticImage');
 const savedHero=localStorage.getItem('headerImage');
 if(savedHero){
   heroImage.src=savedHero;
-  heroImage.style.objectPosition=localStorage.getItem('heroPosition')||'center';
-  heroImage.style.transform=`scale(${(localStorage.getItem('heroZoom')||100)/100})`;
+  heroImage.style.transform=`scale(${localStorage.getItem('heroSize')||100}%)`;
 }
 
 // Load saved static
 const savedStatic=localStorage.getItem('staticImage');
 if(savedStatic){
   staticImage.src=savedStatic;
-  staticImage.style.objectPosition=localStorage.getItem('staticPosition')||'center';
-  staticImage.style.transform=`scale(${(localStorage.getItem('staticZoom')||100)/100})`;
+  staticImage.style.transform=`scale(${localStorage.getItem('staticSize')||100}%)`;
 }
 
 // --- Slider ---
@@ -90,8 +85,7 @@ function renderSlider(){
   sliderImages.forEach((src,i)=>{
     const img=document.createElement('img');
     img.src=src;
-    img.style.objectPosition=localStorage.getItem(`sliderPos_${i}`)||'center';
-    img.style.transform=`scale(${(localStorage.getItem(`sliderZoom_${i}`)||100)/100})`;
+    img.style.transform=`scale(${(localStorage.getItem(`sliderSize_${i}`)||100)/100})`;
     sliderImagesContainer.appendChild(img);
   });
 }
