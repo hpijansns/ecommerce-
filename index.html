@@ -129,6 +129,12 @@ header {
   text-align:center;
   padding:5px;
   box-shadow:0 2px 5px rgba(0,0,0,0.1);
+  cursor:pointer; /* clickable */
+  transition:0.3s;
+}
+
+.product:hover{
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
 }
 
 .product img{
@@ -264,7 +270,7 @@ function loadProducts(){
   const products = JSON.parse(localStorage.getItem('products')||'[]');
   const grid = document.getElementById('productGrid');
   grid.innerHTML='';
-  products.forEach(p=>{
+  products.forEach((p,i)=>{
     const prodDiv = document.createElement('div');
     prodDiv.className = 'product';
     prodDiv.innerHTML=`
@@ -274,6 +280,8 @@ function loadProducts(){
       <div class="price"><del>₹${p.oldPrice}</del> <span class="new-price">₹${p.newPrice}</span></div>
       <div class="delivery">Free Delivery in 2 Days</div>
     `;
+    // Make clickable
+    prodDiv.onclick = ()=>{ window.location.href = `product.html?id=${i}`; };
     grid.appendChild(prodDiv);
   });
 }
