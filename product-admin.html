@@ -3,156 +3,139 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Product Page Admin Panel</title>
+<title>Product Admin Panel</title>
 <style>
-body{font-family:Arial,sans-serif;margin:0;padding:0;background:#f0f0f0;}
-.container{max-width:900px;margin:auto;padding:20px;background:#fff;}
+body{font-family:Arial,sans-serif;background:#f0f0f0;margin:0;padding:0;}
+.container{max-width:1200px;margin:auto;padding:20px;background:#fff;}
 h2{margin-top:0;color:#333;}
-section{margin-bottom:20px;padding:10px;border:1px solid #ccc;border-radius:8px;background:#fafafa;}
+section{margin-bottom:30px;padding:10px;border:1px solid #ccc;border-radius:8px;background:#fafafa;}
 label{display:block;margin:5px 0;font-weight:bold;}
-input[type=text], input[type=number], input[type=url], select{width:100%;padding:5px;margin-bottom:10px;}
+input[type=text], input[type=number], input[type=file], select{width:100%;padding:5px;margin-bottom:10px;}
 button{padding:7px 12px;margin-right:5px;background:#ff3b3b;color:#fff;border:none;border-radius:5px;cursor:pointer;}
 button.delete{background:#555;}
-.image-list{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
-.image-list div{position:relative;}
-.image-list img{width:100px;height:70px;object-fit:cover;border-radius:5px;}
-.image-list button{position:absolute;top:0;right:0;padding:2px 5px;font-size:12px;}
+img.preview{width:100px;height:80px;object-fit:cover;margin-right:5px;border:1px solid #ddd;border-radius:5px;}
+.flex-row{display:flex;gap:10px;flex-wrap:wrap;}
+.flex-row > div{flex:1;}
+.item-list{display:flex;align-items:center;margin:5px 0;}
+.item-list span{flex:1;margin-left:10px;}
 </style>
 </head>
 <body>
 <div class="container">
-<h1>Product Page Admin Panel</h1>
+<h1>Product Admin Panel</h1>
+
+<label>Product ID (0,1,2...)</label>
+<input type="number" id="productIdInput" value="0">
 
 <!-- Header Image -->
 <section>
 <h2>Header Image</h2>
-<input type="file" id="headerUpload">
-<img id="headerPreview" src="" style="width:100%;max-height:200px;object-fit:cover;">
+<input type="file" id="headerImageUpload" accept="image/*">
+<img id="headerPreview" class="preview" src="">
 <button id="saveHeader">Save Header</button>
 </section>
 
 <!-- Slider Images -->
 <section>
-<h2>Slider Images</h2>
-<input type="file" id="sliderUpload" multiple>
-<div class="image-list" id="sliderList"></div>
+<h2>Slider Images (Multiple)</h2>
+<input type="file" id="sliderUpload" accept="image/*" multiple>
+<div id="sliderList"></div>
+<button id="saveSlider">Save Slider</button>
 </section>
 
-<!-- Single Image -->
-<section>
-<h2>Single Image</h2>
-<input type="file" id="singleUpload">
-<img id="singlePreview" src="" style="width:100%;max-height:150px;object-fit:cover;">
-<button id="saveSingle">Save Single Image</button>
-</section>
-
-<!-- Bottom Images -->
+<!-- Bottom 3 Images -->
 <section>
 <h2>Bottom Images</h2>
-<input type="file" id="bottomUpload" multiple>
-<div class="image-list" id="bottomList"></div>
+<input type="file" id="bottomUpload" accept="image/*" multiple>
+<div id="bottomList"></div>
+<button id="saveBottom">Save Bottom Images</button>
 </section>
-
-<!-- Countdown -->
-<section>
-<h2>Countdown Timer</h2>
-<label>Minutes</label>
-<input type="number" id="countdownInput" value="20">
-<button id="saveCountdown">Save Countdown</button>
-</section>
-
 </div>
 
 <script>
-// Helper to convert uploaded file to URL
-function readFileAsURL(file, callback){
+function fileToBase64(file, callback){
   const reader = new FileReader();
-  reader.onload = e=>callback(e.target.result);
+  reader.onload = function(e){ callback(e.target.result); }
   reader.readAsDataURL(file);
 }
+function getKey(){ return 'product_'+document.getElementById('productIdInput').value+'_'; }
 
-// --- Header Image ---
+// Header
 const headerPreview = document.getElementById('headerPreview');
-headerPreview.src = localStorage.getItem('productHeader') || 'https://via.placeholder.com/800x200?text=Header+Image';
-document.getElementById('headerUpload').addEventListener('change', e=>{
-  readFileAsURL(e.target.files[0], url=>{headerPreview.src=url;});
-});
-document.getElementById('saveHeader').addEventListener('click', ()=>{
-  localStorage.setItem('productHeader', headerPreview.src);
-  alert('Header saved');
-});
+if(localStorage.getItem(getKey()+'header')) headerPreview.src = localStorage.getItem(getKey()+'header');
+document.getElementById('saveHeader').onclick = ()=>{
+  const file = document.getElementById('headerImageUpload').files[0];
+  if(file){ fileToBase64(file,data=>{
+    localStorage.setItem(getKey()+'header',data); headerPreview.src=data; alert('Header Saved'); });
+  }else alert('Select image');
+}
 
-// --- Slider Images ---
+// Slider
 function renderSlider(){
-  const sliderList = document.getElementById('sliderList');
-  sliderList.innerHTML='';
-  const sliders = JSON.parse(localStorage.getItem('productSlider')||'[]');
-  sliders.forEach((src,i)=>{
-    const div = document.createElement('div');
-    div.innerHTML = `<img src="${src}"><button class="delete" onclick="deleteSlider(${i})">X</button>`;
-    sliderList.appendChild(div);
+  const list = document.getElementById('sliderList');
+  list.innerHTML='';
+  const sliders = JSON.parse(localStorage.getItem(getKey()+'slider')||'[]');
+  sliders.forEach((img,i)=>{
+    const div=document.createElement('div'); div.className='item-list';
+    div.innerHTML=`<img src="${img}" class="preview"><button class="delete" onclick="deleteSlider(${i})">Delete</button>`;
+    list.appendChild(div);
   });
 }
 function deleteSlider(i){
-  let sliders = JSON.parse(localStorage.getItem('productSlider')||'[]');
+  let sliders = JSON.parse(localStorage.getItem(getKey()+'slider')||'[]');
   sliders.splice(i,1);
-  localStorage.setItem('productSlider', JSON.stringify(sliders));
+  localStorage.setItem(getKey()+'slider',JSON.stringify(sliders));
   renderSlider();
 }
-document.getElementById('sliderUpload').addEventListener('change', e=>{
-  let sliders = JSON.parse(localStorage.getItem('productSlider')||'[]');
-  Array.from(e.target.files).forEach(file=>{
-    if(sliders.length<7){
-      readFileAsURL(file,url=>{sliders.push(url); localStorage.setItem('productSlider',JSON.stringify(sliders)); renderSlider();});
-    }
+document.getElementById('saveSlider').onclick = ()=>{
+  const files = document.getElementById('sliderUpload').files;
+  if(files.length===0){ alert('Select images'); return;}
+  let sliders = JSON.parse(localStorage.getItem(getKey()+'slider')||'[]');
+  let count=0;
+  Array.from(files).forEach(file=>{
+    fileToBase64(file,data=>{
+      sliders.push(data); count++;
+      if(count===files.length){ localStorage.setItem(getKey()+'slider',JSON.stringify(sliders)); renderSlider(); alert('Slider Saved'); }
+    });
   });
-});
+}
 renderSlider();
 
-// --- Single Image ---
-const singlePreview = document.getElementById('singlePreview');
-singlePreview.src = localStorage.getItem('productSingle') || 'https://via.placeholder.com/800x150?text=Single+Image';
-document.getElementById('singleUpload').addEventListener('change', e=>{
-  readFileAsURL(e.target.files[0], url=>{singlePreview.src=url;});
-});
-document.getElementById('saveSingle').addEventListener('click', ()=>{
-  localStorage.setItem('productSingle', singlePreview.src);
-  alert('Single Image saved');
-});
-
-// --- Bottom Images ---
+// Bottom
 function renderBottom(){
-  const bottomList = document.getElementById('bottomList');
-  bottomList.innerHTML='';
-  const bottoms = JSON.parse(localStorage.getItem('productBottom')||'[]');
-  bottoms.forEach((src,i)=>{
-    const div = document.createElement('div');
-    div.innerHTML = `<img src="${src}"><button class="delete" onclick="deleteBottom(${i})">X</button>`;
-    bottomList.appendChild(div);
+  const list = document.getElementById('bottomList');
+  list.innerHTML='';
+  const bottom = JSON.parse(localStorage.getItem(getKey()+'bottom')||'[]');
+  bottom.forEach((img,i)=>{
+    const div=document.createElement('div'); div.className='item-list';
+    div.innerHTML=`<img src="${img}" class="preview"><button class="delete" onclick="deleteBottom(${i})">Delete</button>`;
+    list.appendChild(div);
   });
 }
 function deleteBottom(i){
-  let bottoms = JSON.parse(localStorage.getItem('productBottom')||'[]');
-  bottoms.splice(i,1);
-  localStorage.setItem('productBottom', JSON.stringify(bottoms));
+  let bottom = JSON.parse(localStorage.getItem(getKey()+'bottom')||'[]');
+  bottom.splice(i,1);
+  localStorage.setItem(getKey()+'bottom',JSON.stringify(bottom));
   renderBottom();
 }
-document.getElementById('bottomUpload').addEventListener('change', e=>{
-  let bottoms = JSON.parse(localStorage.getItem('productBottom')||'[]');
-  Array.from(e.target.files).forEach(file=>{
-    if(bottoms.length<3){
-      readFileAsURL(file,url=>{bottoms.push(url); localStorage.setItem('productBottom',JSON.stringify(bottoms)); renderBottom();});
-    }
+document.getElementById('saveBottom').onclick = ()=>{
+  const files = document.getElementById('bottomUpload').files;
+  if(files.length===0){ alert('Select images'); return;}
+  let bottom = JSON.parse(localStorage.getItem(getKey()+'bottom')||'[]');
+  let count=0;
+  Array.from(files).forEach(file=>{
+    fileToBase64(file,data=>{
+      bottom.push(data); count++;
+      if(count===files.length){ localStorage.setItem(getKey()+'bottom',JSON.stringify(bottom)); renderBottom(); alert('Bottom Saved'); }
+    });
   });
-});
+}
 renderBottom();
 
-// --- Countdown ---
-document.getElementById('countdownInput').value = localStorage.getItem('productCountdown')||20;
-document.getElementById('saveCountdown').addEventListener('click', ()=>{
-  const val = document.getElementById('countdownInput').value;
-  localStorage.setItem('productCountdown', val);
-  alert('Countdown saved');
+// Update previews on productId change
+document.getElementById('productIdInput').addEventListener('change',()=>{
+  renderSlider(); renderBottom();
+  headerPreview.src = localStorage.getItem(getKey()+'header')||'';
 });
 </script>
 </body>
