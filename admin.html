@@ -5,20 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Panel</title>
 <style>
-body{font-family:Arial,sans-serif;margin:0;padding:0;}
+body{font-family:Arial,sans-serif;margin:0;padding:0;background:#f9f9f9;}
 header{background:#2874f0;color:white;padding:15px;text-align:center;}
-.container{padding:20px;max-width:900px;margin:auto;}
-input,textarea,select{width:100%;padding:8px;margin:5px 0;}
-button{padding:8px 15px;background:#2874f0;color:white;border:none;border-radius:3px;cursor:pointer;margin-right:5px;}
-button.delete{background:#ff4d4d;}
-button.edit{background:#ffa500;}
+.container{padding:20px;max-width:1000px;margin:auto;}
+input,textarea,select,button{margin:5px 0;padding:8px;width:100%;box-sizing:border-box;}
+button{cursor:pointer;border:none;border-radius:3px;color:white;}
+button.save{background:#2874f0;width:auto;padding:8px 15px;margin-top:5px;}
+button.delete{background:#ff4d4d;width:auto;padding:8px 15px;margin-top:5px;}
+button.edit{background:#ffa500;width:auto;padding:8px 15px;margin-top:5px;}
 nav.admin-nav{display:flex;gap:10px;margin-bottom:10px;}
-nav.admin-nav button{background:#555;color:white;}
-section{display:none;}
-.product-item{border:1px solid #ccc;padding:10px;margin-bottom:10px;border-radius:5px;display:flex;align-items:center;gap:10px;}
-.product-item img{max-width:80px; max-height:80px;}
-table{width:100%;border-collapse:collapse;}
+nav.admin-nav button{background:#555;color:white;padding:8px 12px;width:auto;}
+section{display:none;margin-top:20px;}
+.product-item{border:1px solid #ccc;padding:10px;margin-bottom:10px;border-radius:5px;display:flex;align-items:center;gap:10px;background:white;}
+.product-item img{max-width:80px; max-height:80px;object-fit:cover;}
+table{width:100%;border-collapse:collapse;background:white;}
 th,td{border:1px solid #ccc;padding:5px;text-align:center;}
+.preview-img{max-width:100px;max-height:100px;display:block;margin-top:5px;border:1px solid #ccc;}
 </style>
 </head>
 <body>
@@ -28,16 +30,18 @@ th,td{border:1px solid #ccc;padding:5px;text-align:center;}
 </header>
 
 <div class="container">
+
 <nav class="admin-nav">
 <button onclick="showSection('products')">Products</button>
 <button onclick="showSection('orders')">Orders</button>
+<button onclick="showSection('header')">Header / Feature Images</button>
 </nav>
 
+<!-- Products Section -->
 <section id="products">
 <h2 id="form-title">Add New Product</h2>
 <input type="text" id="name" placeholder="Product Name">
 <input type="number" id="price" placeholder="Price">
-<input type="file" id="image" accept="image/*">
 <textarea id="desc" placeholder="Description"></textarea>
 <select id="grade">
   <option value="">Select Grade</option>
@@ -45,35 +49,62 @@ th,td{border:1px solid #ccc;padding:5px;text-align:center;}
   <option value="Premium">Premium</option>
   <option value="Standard">Standard</option>
 </select>
-<button onclick="saveProduct()">Save Product</button>
-<button onclick="cancelEdit()" style="background:#888;">Cancel</button>
+<input type="file" id="image" accept="image/*">
+<img id="preview" class="preview-img" src="" alt="Preview" style="display:none;">
+<button class="save" onclick="saveProduct()">Save Product</button>
+<button onclick="cancelEdit()" style="background:#888;width:auto;">Cancel</button>
 <div id="product-list"></div>
 </section>
 
+<!-- Orders Section -->
 <section id="orders">
 <h2>Orders</h2>
 <table>
-<thead><tr><th>Order ID</th><th>Name</th><th>Phone</th><th>Address</th><th>Method</th><th>Items</th></tr></thead>
+<thead>
+<tr><th>Order ID</th><th>Name</th><th>Phone</th><th>Address</th><th>Method</th><th>Items</th></tr>
+</thead>
 <tbody id="order-list"></tbody>
 </table>
+</section>
+
+<!-- Header / Feature Images Section -->
+<section id="header">
+<h2>Header / Feature Images</h2>
+<input type="file" id="headerImage" accept="image/*">
+<img id="headerPreview" class="preview-img" src="" alt="Header Preview" style="display:none;">
+<button class="save" onclick="saveHeader()">Save Header Image</button>
+<button class="delete" onclick="deleteHeader()">Delete Header Image</button>
 </section>
 
 </div>
 
 <script>
+// LocalStorage Data
 let products = JSON.parse(localStorage.getItem('products')) || [];
 let orders = JSON.parse(localStorage.getItem('orders')) || [];
 let editId = null;
 
+// Section Handling
 function showSection(name){
   document.querySelectorAll('section').forEach(s=>s.style.display='none');
   document.getElementById(name).style.display='block';
   if(name==='products'){ showProducts(); }
   if(name==='orders'){ showOrders(); }
+  if(name==='header'){ showHeader(); }
 }
 showSection('products');
 
-// Products
+// ======== Products Section ========
+const preview = document.getElementById('preview');
+document.getElementById('image').addEventListener('change', e=>{
+  const file=e.target.files[0];
+  if(file){
+    const reader=new FileReader();
+    reader.onload=event=>{ preview.src=event.target.result; preview.style.display='block'; }
+    reader.readAsDataURL(file);
+  }
+});
+
 function saveProduct(){
   const name=document.getElementById('name').value;
   const price=document.getElementById('price').value;
@@ -116,6 +147,7 @@ function editProduct(id){
   document.getElementById('price').value=p.price;
   document.getElementById('desc').value=p.desc;
   document.getElementById('grade').value=p.grade;
+  preview.src=p.image; preview.style.display='block';
 }
 
 function deleteProduct(id){
@@ -130,6 +162,7 @@ function cancelEdit(){
   document.getElementById('desc').value='';
   document.getElementById('grade').value='';
   document.getElementById('image').value='';
+  preview.style.display='none';
 }
 
 function showProducts(){
@@ -147,7 +180,7 @@ function showProducts(){
   });
 }
 
-// Orders
+// ======== Orders Section ========
 function showOrders(){
   const tbody=document.getElementById('order-list');
   tbody.innerHTML='';
@@ -160,6 +193,39 @@ function showOrders(){
     row.innerHTML=`<td>${o.id}</td><td>${o.name}</td><td>${o.phone}</td><td>${o.address}, ${o.city}, ${o.pincode}</td><td>${o.method}</td><td>${items}</td>`;
     tbody.appendChild(row);
   });
+}
+
+// ======== Header / Feature Images ========
+const headerPreview=document.getElementById('headerPreview');
+const headerInput=document.getElementById('headerImage');
+
+function showHeader(){
+  const headerImage=localStorage.getItem('headerImage');
+  if(headerImage){ headerPreview.src=headerImage; headerPreview.style.display='block'; }
+  else{ headerPreview.style.display='none'; }
+}
+
+headerInput.addEventListener('change', e=>{
+  const file=e.target.files[0];
+  if(file){
+    const reader=new FileReader();
+    reader.onload=event=>{ headerPreview.src=event.target.result; headerPreview.style.display='block'; }
+    reader.readAsDataURL(file);
+  }
+});
+
+function saveHeader(){
+  if(headerPreview.src){
+    localStorage.setItem('headerImage', headerPreview.src);
+    alert('Header image saved!');
+  } else alert('Select an image first!');
+}
+
+function deleteHeader(){
+  if(confirm('Delete header image?')){
+    localStorage.removeItem('headerImage');
+    headerPreview.style.display='none';
+  }
 }
 </script>
 
