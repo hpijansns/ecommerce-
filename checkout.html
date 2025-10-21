@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout</title>
+<style>
+body{font-family:Arial,sans-serif;margin:0;padding:0;}
+header{background:#2874f0;color:white;padding:15px;text-align:center;}
+.container{padding:20px;max-width:600px;margin:auto;}
+input,textarea{width:100%;padding:8px;margin:5px 0;}
+button{padding:8px 15px;background:#2874f0;color:white;border:none;border-radius:3px;cursor:pointer;}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Checkout</h1>
+</header>
+
+<div class="container">
+<h3>Shipping Address</h3>
+<input type="text" id="name" placeholder="Name">
+<input type="text" id="phone" placeholder="Phone">
+<textarea id="address" placeholder="Address"></textarea>
+<input type="text" id="city" placeholder="City">
+<input type="text" id="pincode" placeholder="Pincode">
+<h3>Payment Method</h3>
+<button onclick="placeOrder('UPI')">Pay with UPI</button>
+<button onclick="placeOrder('COD')">Cash on Delivery</button>
+</div>
+
+<script>
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+let orders = JSON.parse(localStorage.getItem('orders')) || [];
+
+function placeOrder(method){
+  if(cart.length===0){ alert('Cart empty'); return; }
+  const name=document.getElementById('name').value;
+  const phone=document.getElementById('phone').value;
+  const address=document.getElementById('address').value;
+  const city=document.getElementById('city').value;
+  const pincode=document.getElementById('pincode').value;
+  if(!name||!phone||!address||!city||!pincode){ alert('Fill all fields'); return; }
+  const order = {id:Date.now(),cart:cart,name,phone,address,city,pincode,method};
+  orders.push(order);
+  localStorage.setItem('orders',JSON.stringify(orders));
+  localStorage.setItem('cart',JSON.stringify([]));
+  alert('Order placed successfully!');
+  window.location.href='index.html';
+}
+</script>
+
+</body>
+</html>
