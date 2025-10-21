@@ -7,17 +7,17 @@
 <style>
 body{font-family:Arial,sans-serif;background:#f0f0f0;margin:0;padding:0;}
 .container{max-width:1200px;margin:auto;padding:20px;background:#fff;}
-h2{margin-top:0;color:#333;border-bottom:1px solid #ccc;padding-bottom:5px;}
+h2{margin-top:0;color:#333;}
 section{margin-bottom:30px;padding:10px;border:1px solid #ccc;border-radius:8px;background:#fafafa;}
 label{display:block;margin:5px 0;font-weight:bold;}
-input, select{width:100%;padding:5px;margin-bottom:10px;}
+input[type=text], input[type=number], input[type=file]{width:100%;padding:5px;margin-bottom:10px;}
 button{padding:7px 12px;margin-right:5px;background:#ff3b3b;color:#fff;border:none;border-radius:5px;cursor:pointer;}
 button.delete{background:#555;}
-.item-list{margin-top:10px;}
-.item{display:flex;align-items:center;justify-content:space-between;padding:5px;margin:5px 0;background:#fff;border:1px solid #ddd;border-radius:5px;}
-.item img{width:50px;height:50px;object-fit:cover;margin-right:10px;}
+.product-item, .slider-item{display:flex;align-items:center;justify-content:space-between;padding:5px;margin:5px 0;background:#fff;border:1px solid #ddd;border-radius:5px;}
+.product-item span, .slider-item span{flex:1;margin-left:10px;}
 .flex-row{display:flex;gap:10px;flex-wrap:wrap;}
-.flex-row>div{flex:1;}
+.flex-row > div{flex:1;}
+img.thumb{width:50px;height:50px;object-fit:cover;border-radius:5px;margin-right:10px;}
 </style>
 </head>
 <body>
@@ -27,8 +27,7 @@ button.delete{background:#555;}
 <!-- Header Image -->
 <section>
 <h2>Header Image</h2>
-<label>Upload Image</label>
-<input type="file" id="headerFile" accept="image/*">
+<input type="file" id="headerImageFile">
 <label>Size %</label>
 <input type="number" id="headerSize" value="100">
 <button id="saveHeader">Save Header</button>
@@ -37,19 +36,18 @@ button.delete{background:#555;}
 <!-- Static Image -->
 <section>
 <h2>Static Image</h2>
-<label>Upload Image</label>
-<input type="file" id="staticFile" accept="image/*">
+<input type="file" id="staticImageFile">
 <label>Size %</label>
 <input type="number" id="staticSize" value="100">
-<button id="saveStatic">Save Static</button>
+<button id="saveStatic">Save Static Image</button>
 </section>
 
 <!-- Slider Images -->
 <section>
 <h2>Slider Images</h2>
-<div id="sliderList" class="item-list"></div>
-<input type="file" id="sliderFile" accept="image/*">
-<button id="addSlider">Add Slider Image</button>
+<div id="sliderList"></div>
+<input type="file" id="sliderInput" accept="image/*" multiple>
+<button id="addSlider">Add Images</button>
 </section>
 
 <!-- Countdown & Sell -->
@@ -83,59 +81,61 @@ button.delete{background:#555;}
 <!-- Product Grid -->
 <section>
 <h2>Products</h2>
-<div id="productList" class="item-list"></div>
+<div id="productList"></div>
 <input type="text" id="prodName" placeholder="Product Name">
-<input type="file" id="prodImageFile" accept="image/*">
+<input type="file" id="prodImage" accept="image/*">
 <input type="number" id="prodOldPrice" placeholder="Old Price">
 <input type="number" id="prodNewPrice" placeholder="New Price">
 <input type="number" id="prodDiscount" placeholder="Discount %">
 <button id="addProduct">Add Product</button>
 </section>
+
 </div>
 
 <script>
-// Utility to convert file to base64
+// Helper: Convert file to base64
 function fileToBase64(file, callback){
-  const reader = new FileReader();
-  reader.onload = e => callback(e.target.result);
-  reader.readAsDataURL(file);
+    const reader = new FileReader();
+    reader.onload = e => callback(e.target.result);
+    reader.readAsDataURL(file);
 }
 
-// Header Image
+// Load saved data
+document.getElementById('headerSize').value = localStorage.getItem('heroSize')||100;
+document.getElementById('staticSize').value = localStorage.getItem('staticSize')||100;
+
+// Header save
 document.getElementById('saveHeader').onclick = ()=>{
-  const file = document.getElementById('headerFile').files[0];
-  if(file){
-    fileToBase64(file, base64=>{
-      localStorage.setItem('headerImage', base64);
-      localStorage.setItem('heroSize', document.getElementById('headerSize').value);
-      alert('Header Saved');
-    });
-  }
+  const file = document.getElementById('headerImageFile').files[0];
+  if(!file) return alert('Select an image');
+  fileToBase64(file, (base64)=>{
+    localStorage.setItem('headerImage',base64);
+    localStorage.setItem('heroSize',document.getElementById('headerSize').value);
+    alert('Header Saved');
+  });
 }
 
-// Static Image
+// Static save
 document.getElementById('saveStatic').onclick = ()=>{
-  const file = document.getElementById('staticFile').files[0];
-  if(file){
-    fileToBase64(file, base64=>{
-      localStorage.setItem('staticImage', base64);
-      localStorage.setItem('staticSize', document.getElementById('staticSize').value);
-      alert('Static Saved');
-    });
-  }
+  const file = document.getElementById('staticImageFile').files[0];
+  if(!file) return alert('Select an image');
+  fileToBase64(file, (base64)=>{
+    localStorage.setItem('staticImage',base64);
+    localStorage.setItem('staticSize',document.getElementById('staticSize').value);
+    alert('Static Image Saved');
+  });
 }
 
-// Slider Images
+// Slider
 function renderSlider(){
-  const list = document.getElementById('sliderList');
-  list.innerHTML='';
+  const sliderList = document.getElementById('sliderList');
+  sliderList.innerHTML='';
   const sliders = JSON.parse(localStorage.getItem('sliderImages')||'[]');
-  sliders.forEach((img,i)=>{
+  sliders.forEach((url,i)=>{
     const div = document.createElement('div');
-    div.className='item';
-    div.innerHTML=`<img src="${img}" alt="slider"><span>Slider ${i+1}</span>
-    <button class="delete" onclick="deleteSlider(${i})">Delete</button>`;
-    list.appendChild(div);
+    div.className='slider-item';
+    div.innerHTML=`<img src="${url}" class="thumb"><span>Image ${i+1}</span><button class="delete" onclick="deleteSlider(${i})">Delete</button>`;
+    sliderList.appendChild(div);
   });
 }
 function deleteSlider(i){
@@ -144,29 +144,38 @@ function deleteSlider(i){
   localStorage.setItem('sliderImages',JSON.stringify(sliders));
   renderSlider();
 }
+
+// Add Multiple Slider Images
 document.getElementById('addSlider').onclick = ()=>{
-  const file = document.getElementById('sliderFile').files[0];
-  if(file){
-    fileToBase64(file, base64=>{
-      let sliders = JSON.parse(localStorage.getItem('sliderImages')||'[]');
-      sliders.push(base64);
+  const files = document.getElementById('sliderInput').files;
+  if(!files.length) return alert('Select images');
+  if(files.length > 7) return alert('Maximum 7 images allowed');
+
+  let sliders = JSON.parse(localStorage.getItem('sliderImages')||'[]');
+
+  Array.from(files).forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = e=>{
+      sliders.push(e.target.result);
       localStorage.setItem('sliderImages',JSON.stringify(sliders));
-      document.getElementById('sliderFile').value='';
       renderSlider();
-    });
-  }
+    }
+    reader.readAsDataURL(file);
+  });
+
+  document.getElementById('sliderInput').value='';
 }
 renderSlider();
 
-// Countdown & Sell
+// Countdown & Sell save
 document.getElementById('saveCountdown').onclick = ()=>{
-  localStorage.setItem('saleText', document.getElementById('saleTextInput').value);
-  localStorage.setItem('saleTextColor', document.getElementById('saleColorInput').value);
-  localStorage.setItem('timerMinutes', document.getElementById('timerMinutesInput').value);
-  localStorage.setItem('timerBgColor', document.getElementById('timerBgInput').value);
-  localStorage.setItem('sellText', document.getElementById('sellTextInput').value);
-  localStorage.setItem('sellTextColor', document.getElementById('sellTextColorInput').value);
-  localStorage.setItem('sellBgColor', document.getElementById('sellBgColorInput').value);
+  localStorage.setItem('saleText',document.getElementById('saleTextInput').value);
+  localStorage.setItem('saleTextColor',document.getElementById('saleColorInput').value);
+  localStorage.setItem('timerMinutes',document.getElementById('timerMinutesInput').value);
+  localStorage.setItem('timerBgColor',document.getElementById('timerBgInput').value);
+  localStorage.setItem('sellText',document.getElementById('sellTextInput').value);
+  localStorage.setItem('sellTextColor',document.getElementById('sellTextColorInput').value);
+  localStorage.setItem('sellBgColor',document.getElementById('sellBgColorInput').value);
   alert('Countdown & Sell Saved');
 }
 
@@ -174,15 +183,18 @@ document.getElementById('saveCountdown').onclick = ()=>{
 function renderProducts(){
   const list = document.getElementById('productList');
   list.innerHTML='';
-  const products = JSON.parse(localStorage.getItem('products')||'[]');
+  let products = JSON.parse(localStorage.getItem('products')||'[]');
   products.forEach((p,i)=>{
     const div = document.createElement('div');
-    div.className='item';
-    div.innerHTML=`<img src="${p.image}" alt="${p.name}"><span>${p.name} | ₹${p.newPrice} | ${p.discount}%</span>
-    <div>
-    <button onclick="editProduct(${i})">Edit</button>
-    <button class="delete" onclick="deleteProduct(${i})">Delete</button>
-    </div>`;
+    div.className='product-item';
+    div.innerHTML=`
+      <img src="${p.image}" class="thumb">
+      <span>${p.name} | ₹${p.newPrice} | ${p.discount}%</span>
+      <div>
+      <button onclick="editProduct(${i})">Edit</button>
+      <button class="delete" onclick="deleteProduct(${i})">Delete</button>
+      </div>
+    `;
     list.appendChild(div);
   });
 }
@@ -195,23 +207,10 @@ function deleteProduct(i){
 function editProduct(i){
   let products = JSON.parse(localStorage.getItem('products')||'[]');
   const p = products[i];
-  document.getElementById('prodName').value = p.name;
-  document.getElementById('prodOldPrice').value = p.oldPrice;
-  document.getElementById('prodNewPrice').value = p.newPrice;
-  document.getElementById('prodDiscount').value = p.discount;
-
-  // Create temporary invisible input for editing image
-  const tempInput = document.createElement('input');
-  tempInput.type='file';
-  tempInput.onchange = e=>{
-    fileToBase64(e.target.files[0], base64=>{
-      document.getElementById('prodImageFile').dataset.base64 = base64;
-    });
-  }
-  document.body.appendChild(tempInput);
-  tempInput.click();
-  tempInput.remove();
-
+  document.getElementById('prodName').value=p.name;
+  document.getElementById('prodOldPrice').value=p.oldPrice;
+  document.getElementById('prodNewPrice').value=p.newPrice;
+  document.getElementById('prodDiscount').value=p.discount;
   deleteProduct(i);
 }
 document.getElementById('addProduct').onclick = ()=>{
@@ -219,4 +218,21 @@ document.getElementById('addProduct').onclick = ()=>{
   const oldPrice=document.getElementById('prodOldPrice').value;
   const newPrice=document.getElementById('prodNewPrice').value;
   const discount=document.getElementById('prodDiscount').value;
-  const file=document.get
+  const file = document.getElementById('prodImage').files[0];
+  if(!name||!file) return alert('Name & Image required');
+  fileToBase64(file,(base64)=>{
+    let products = JSON.parse(localStorage.getItem('products')||'[]');
+    products.push({name:name,image:base64,oldPrice:oldPrice,newPrice:newPrice,discount:discount});
+    localStorage.setItem('products',JSON.stringify(products));
+    document.getElementById('prodName').value='';
+    document.getElementById('prodImage').value='';
+    document.getElementById('prodOldPrice').value='';
+    document.getElementById('prodNewPrice').value='';
+    document.getElementById('prodDiscount').value='';
+    renderProducts();
+  });
+}
+renderProducts();
+</script>
+</body>
+</html>
