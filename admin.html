@@ -3,230 +3,72 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Panel</title>
+<title>My E-Commerce Store</title>
 <style>
 body{font-family:Arial,sans-serif;margin:0;padding:0;background:#f9f9f9;}
-header{background:#2874f0;color:white;padding:15px;text-align:center;}
-.container{padding:20px;max-width:1000px;margin:auto;}
-input,textarea,select,button{margin:5px 0;padding:8px;width:100%;box-sizing:border-box;}
-button{cursor:pointer;border:none;border-radius:3px;color:white;}
-button.save{background:#2874f0;width:auto;padding:8px 15px;margin-top:5px;}
-button.delete{background:#ff4d4d;width:auto;padding:8px 15px;margin-top:5px;}
-button.edit{background:#ffa500;width:auto;padding:8px 15px;margin-top:5px;}
-nav.admin-nav{display:flex;gap:10px;margin-bottom:10px;}
-nav.admin-nav button{background:#555;color:white;padding:8px 12px;width:auto;}
-section{display:none;margin-top:20px;}
-.product-item{border:1px solid #ccc;padding:10px;margin-bottom:10px;border-radius:5px;display:flex;align-items:center;gap:10px;background:white;}
-.product-item img{max-width:80px; max-height:80px;object-fit:cover;}
-table{width:100%;border-collapse:collapse;background:white;}
-th,td{border:1px solid #ccc;padding:5px;text-align:center;}
-.preview-img{max-width:100px;max-height:100px;display:block;margin-top:5px;border:1px solid #ccc;}
+header{position:sticky;top:0;z-index:10;}
+header img{width:100%;height:auto;display:block;} /* Header image */
+nav{display:flex;justify-content:center;gap:20px;background:#f1f1f1;padding:10px;position:sticky;top:60px;z-index:9;}
+nav a{text-decoration:none;color:#333;font-weight:bold;}
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;padding:20px;}
+.product-card{background:white;border-radius:5px;box-shadow:0 2px 8px rgba(0,0,0,0.1);overflow:hidden;cursor:pointer;transition:transform 0.2s, box-shadow 0.2s;position:relative;}
+.product-card:hover{transform:translateY(-5px);box-shadow:0 5px 15px rgba(0,0,0,0.2);}
+.product-card img{width:100%;height:200px;object-fit:cover;}
+.product-info{padding:10px;text-align:center;}
+.product-info h3{margin:5px 0;font-size:16px;}
+.product-info p{margin:3px 0;color:#555;font-weight:bold;}
+.badge{position:absolute;top:10px;left:10px;padding:5px 8px;border-radius:3px;font-size:12px;color:white;font-weight:bold;}
+footer{text-align:center;padding:15px;background:#f1f1f1;margin-top:20px;}
 </style>
 </head>
 <body>
 
 <header>
-<h1>Admin Panel</h1>
+<img id="headerImage" src="" alt="Store Header"> <!-- Live Header from Admin -->
 </header>
 
-<div class="container">
-
-<nav class="admin-nav">
-<button onclick="showSection('products')">Products</button>
-<button onclick="showSection('orders')">Orders</button>
-<button onclick="showSection('header')">Header / Feature Images</button>
+<nav>
+<a href="index.html">Home</a>
+<a href="cart.html">Cart</a>
+<a href="admin.html">Admin</a>
 </nav>
 
-<!-- Products Section -->
-<section id="products">
-<h2 id="form-title">Add New Product</h2>
-<input type="text" id="name" placeholder="Product Name">
-<input type="number" id="price" placeholder="Price">
-<textarea id="desc" placeholder="Description"></textarea>
-<select id="grade">
-  <option value="">Select Grade</option>
-  <option value="Ultra">Ultra</option>
-  <option value="Premium">Premium</option>
-  <option value="Standard">Standard</option>
-</select>
-<input type="file" id="image" accept="image/*">
-<img id="preview" class="preview-img" src="" alt="Preview" style="display:none;">
-<button class="save" onclick="saveProduct()">Save Product</button>
-<button onclick="cancelEdit()" style="background:#888;width:auto;">Cancel</button>
-<div id="product-list"></div>
-</section>
+<div class="products" id="product-list"></div>
 
-<!-- Orders Section -->
-<section id="orders">
-<h2>Orders</h2>
-<table>
-<thead>
-<tr><th>Order ID</th><th>Name</th><th>Phone</th><th>Address</th><th>Method</th><th>Items</th></tr>
-</thead>
-<tbody id="order-list"></tbody>
-</table>
-</section>
-
-<!-- Header / Feature Images Section -->
-<section id="header">
-<h2>Header / Feature Images</h2>
-<input type="file" id="headerImage" accept="image/*">
-<img id="headerPreview" class="preview-img" src="" alt="Header Preview" style="display:none;">
-<button class="save" onclick="saveHeader()">Save Header Image</button>
-<button class="delete" onclick="deleteHeader()">Delete Header Image</button>
-</section>
-
-</div>
+<footer>
+<p>&copy; 2025 My E-Commerce Store</p>
+</footer>
 
 <script>
-// LocalStorage Data
+// Load Header Image
+const headerImg=document.getElementById('headerImage');
+const savedHeader=localStorage.getItem('headerImage');
+if(savedHeader){ headerImg.src=savedHeader; } else { headerImg.src='header-placeholder.jpg'; }
+
+// Load Products from LocalStorage
 let products = JSON.parse(localStorage.getItem('products')) || [];
-let orders = JSON.parse(localStorage.getItem('orders')) || [];
-let editId = null;
 
-// Section Handling
-function showSection(name){
-  document.querySelectorAll('section').forEach(s=>s.style.display='none');
-  document.getElementById(name).style.display='block';
-  if(name==='products'){ showProducts(); }
-  if(name==='orders'){ showOrders(); }
-  if(name==='header'){ showHeader(); }
-}
-showSection('products');
-
-// ======== Products Section ========
-const preview = document.getElementById('preview');
-document.getElementById('image').addEventListener('change', e=>{
-  const file=e.target.files[0];
-  if(file){
-    const reader=new FileReader();
-    reader.onload=event=>{ preview.src=event.target.result; preview.style.display='block'; }
-    reader.readAsDataURL(file);
-  }
-});
-
-function saveProduct(){
-  const name=document.getElementById('name').value;
-  const price=document.getElementById('price').value;
-  const desc=document.getElementById('desc').value;
-  const grade=document.getElementById('grade').value;
-  const imageFile=document.getElementById('image').files[0];
-
-  if(!name||!price||!grade){ alert('Fill Name, Price, Grade'); return; }
-
-  if(editId){
-    const product=products.find(p=>p.id===editId);
-    product.name=name; product.price=price; product.desc=desc; product.grade=grade;
-    if(imageFile){
-      const reader=new FileReader();
-      reader.onload=e=>{ product.image=e.target.result; finishEdit(); }
-      reader.readAsDataURL(imageFile);
-    } else finishEdit();
-  } else {
-    if(!imageFile){ alert('Select image'); return; }
-    const reader=new FileReader();
-    reader.onload=e=>{
-      const newProd={id:Date.now(),name,price,desc,grade,image:e.target.result};
-      products.push(newProd); finishEdit();
-    }
-    reader.readAsDataURL(imageFile);
-  }
-}
-
-function finishEdit(){
-  localStorage.setItem('products',JSON.stringify(products));
-  cancelEdit();
-  showProducts();
-}
-
-function editProduct(id){
-  const p=products.find(prod=>prod.id===id);
-  editId=id;
-  document.getElementById('form-title').innerText='Edit Product';
-  document.getElementById('name').value=p.name;
-  document.getElementById('price').value=p.price;
-  document.getElementById('desc').value=p.desc;
-  document.getElementById('grade').value=p.grade;
-  preview.src=p.image; preview.style.display='block';
-}
-
-function deleteProduct(id){
-  if(confirm('Delete this product?')){ products=products.filter(p=>p.id!==id); finishEdit(); }
-}
-
-function cancelEdit(){
-  editId=null;
-  document.getElementById('form-title').innerText='Add New Product';
-  document.getElementById('name').value='';
-  document.getElementById('price').value='';
-  document.getElementById('desc').value='';
-  document.getElementById('grade').value='';
-  document.getElementById('image').value='';
-  preview.style.display='none';
-}
-
+// Show products
 function showProducts(){
-  const list=document.getElementById('product-list');
-  list.innerHTML='';
+  const list = document.getElementById('product-list');
+  list.innerHTML = '';
   products.forEach(p=>{
-    const div=document.createElement('div'); div.className='product-item';
-    div.innerHTML=`<img src="${p.image}" alt="${p.name}">
-    <div><strong>${p.name}</strong><br>₹${p.price}<br>${p.desc}<br>Grade: ${p.grade}</div>
-    <div>
-      <button class="edit" onclick="editProduct(${p.id})">Edit</button>
-      <button class="delete" onclick="deleteProduct(${p.id})">Delete</button>
-    </div>`;
-    list.appendChild(div);
+    const card = document.createElement('div');
+    card.className='product-card';
+    const badgeColor = p.grade==='Ultra'?'#ff3b3b':p.grade==='Premium'?'#ffa500':'#4caf50';
+    card.innerHTML=`
+      <span class="badge" style="background:${badgeColor}">${p.grade}</span>
+      <img src="${p.image}" alt="${p.name}">
+      <div class="product-info">
+        <h3>${p.name}</h3>
+        <p>₹${p.price}</p>
+      </div>`;
+    card.onclick = ()=>{ window.location.href=`product.html?id=${p.id}`; }
+    list.appendChild(card);
   });
 }
 
-// ======== Orders Section ========
-function showOrders(){
-  const tbody=document.getElementById('order-list');
-  tbody.innerHTML='';
-  orders.forEach(o=>{
-    const items=o.cart.map(i=>{
-      const prod=products.find(p=>p.id===i.id);
-      return prod?prod.name+' x'+i.qty:'Unknown';
-    }).join(', ');
-    const row=document.createElement('tr');
-    row.innerHTML=`<td>${o.id}</td><td>${o.name}</td><td>${o.phone}</td><td>${o.address}, ${o.city}, ${o.pincode}</td><td>${o.method}</td><td>${items}</td>`;
-    tbody.appendChild(row);
-  });
-}
-
-// ======== Header / Feature Images ========
-const headerPreview=document.getElementById('headerPreview');
-const headerInput=document.getElementById('headerImage');
-
-function showHeader(){
-  const headerImage=localStorage.getItem('headerImage');
-  if(headerImage){ headerPreview.src=headerImage; headerPreview.style.display='block'; }
-  else{ headerPreview.style.display='none'; }
-}
-
-headerInput.addEventListener('change', e=>{
-  const file=e.target.files[0];
-  if(file){
-    const reader=new FileReader();
-    reader.onload=event=>{ headerPreview.src=event.target.result; headerPreview.style.display='block'; }
-    reader.readAsDataURL(file);
-  }
-});
-
-function saveHeader(){
-  if(headerPreview.src){
-    localStorage.setItem('headerImage', headerPreview.src);
-    alert('Header image saved!');
-  } else alert('Select an image first!');
-}
-
-function deleteHeader(){
-  if(confirm('Delete header image?')){
-    localStorage.removeItem('headerImage');
-    headerPreview.style.display='none';
-  }
-}
+showProducts();
 </script>
 
 </body>
