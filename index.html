@@ -3,225 +3,196 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>E-Commerce Landing</title>
+<title>Admin Panel</title>
 <style>
-body {
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
-  background: #f5f5f5;
-}
-
-/* Hero fixed top */
-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1000;
-  overflow: hidden;
-}
-
-/* Hero image fits exactly */
-#heroImage {
-  width: 100%;
-  height: auto;
-  display: block;
-  object-fit: contain;
-}
-
-/* Search bar overlay - thoda niche */
-#searchContainer {
-  position: absolute;
-  top: 65%; /* thoda niche */
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  gap: 5px;
-}
-#searchContainer input {
-  padding: 10px;
-  width: 200px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-#searchContainer button {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  background: #ff3b3b;
-  color: white;
-  cursor: pointer;
-}
-
-/* Static Image */
-#staticImage {
-  width: 100%;
-  height: auto;
-  display: block;
-  margin-top: 10px;
-  object-fit: contain;
-  transition: transform 0.3s;
-}
-
-/* Slider */
-#sliderContainer {
-  width: 100%;
-  overflow: hidden;
-  position: relative;
-  height: 250px;
-  margin-top: 20px;
-}
-#sliderImages {
-  display: flex;
-  transition: transform 0.5s ease-in-out;
-}
-#sliderImages img {
-  flex-shrink: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  transition: transform 0.3s;
-}
-
-/* Countdown + Sell Button */
-#countdownSection {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 40px;
-  margin: 30px 0;
-  flex-wrap: wrap;
-}
-#timerBox {
-  background: #fff;
-  padding: 15px 25px;
-  border-radius: 5px;
-  text-align: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-}
-#saleText {
-  font-size: 18px;
-  font-weight: bold;
-  color: #ff3b3b;
-  margin-bottom: 5px;
-}
-#timer {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-}
-#sellButton {
-  padding: 15px 30px;
-  background: #ff3b3b;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 18px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-}
-
-@media(max-width:768px){
-  #countdownSection {flex-direction: column; gap: 10px;} 
-  #searchContainer input {width: 150px;}
-}
+body{font-family:Arial,sans-serif;background:#f5f5f5;margin:0;padding:20px;}
+h1,h2{color:#333;}
+section{background:#fff;padding:15px;margin-bottom:20px;border-radius:5px;box-shadow:0 2px 6px rgba(0,0,0,0.1);}
+label{display:block;margin:10px 0 5px;}
+input[type="text"], input[type="color"], input[type="number"], input[type="file"]{padding:8px;width:100%;box-sizing:border-box;margin-bottom:10px;border-radius:5px;border:1px solid #ccc;}
+button{padding:10px 15px;border:none;border-radius:5px;background:#ff3b3b;color:white;cursor:pointer;margin-right:10px;margin-top:5px;}
+#sliderList img{width:80px;margin:5px;border:1px solid #ccc;border-radius:3px;cursor:pointer;}
+.flex-container{display:flex;gap:20px;flex-wrap:wrap;}
+.flex-item{flex:1;min-width:250px;}
 </style>
 </head>
 <body>
+<h1>Admin Panel</h1>
 
-<header>
-  <img id="heroImage" src="header-placeholder.jpg" alt="Hero">
-  <div id="searchContainer">
-    <input type="text" placeholder="Search products...">
-    <button>Search</button>
+<section>
+<h2>Hero & Static Images</h2>
+<div class="flex-container">
+  <div class="flex-item">
+    <h3>Hero Image</h3>
+    <input type="file" id="heroUpload">
+    <label>Size Ratio (%):</label>
+    <input type="number" id="heroSize" min="50" max="200" value="100">
+    <button id="heroSave">Save Hero</button>
+    <button id="heroDelete">Delete Hero</button>
+    <img id="heroPreview" src="" style="width:100%;margin-top:10px;object-fit:contain;"/>
   </div>
-</header>
 
-<img id="staticImage" src="static-placeholder.jpg" alt="Static Image">
-
-<div id="sliderContainer">
-  <div id="sliderImages"></div>
-</div>
-
-<div id="countdownSection">
-  <div id="timerBox">
-    <div id="saleText">Sale of the Day</div>
-    <div id="timer">20:00</div>
+  <div class="flex-item">
+    <h3>Static Image</h3>
+    <input type="file" id="staticUpload">
+    <label>Size Ratio (%):</label>
+    <input type="number" id="staticSize" min="50" max="200" value="100">
+    <button id="staticSave">Save Static</button>
+    <button id="staticDelete">Delete Static</button>
+    <img id="staticPreview" src="" style="width:100%;margin-top:10px;object-fit:contain;"/>
   </div>
-  <button id="sellButton">Sell is Live</button>
 </div>
+</section>
+
+<section>
+<h2>Slider Images (Max 5)</h2>
+<input type="file" id="sliderUpload" multiple>
+<div id="sliderList"></div>
+</section>
+
+<section>
+<h2>Countdown & Sell Button</h2>
+<label>Countdown Minutes:</label>
+<input type="number" id="timerMinutes" min="1" value="20">
+<label>Sale Text:</label>
+<input type="text" id="saleTextInput" value="Sale of the Day">
+<label>Sale Text Color:</label>
+<input type="color" id="saleTextColorInput" value="#ff3b3b">
+<label>Timer Background Color:</label>
+<input type="color" id="timerBgColorInput" value="#ffffff">
+<label>Sell Button Text:</label>
+<input type="text" id="sellTextInput" value="Sell is Live">
+<label>Sell Text Color:</label>
+<input type="color" id="sellTextColorInput" value="#ffffff">
+<label>Sell Background Color:</label>
+<input type="color" id="sellBgColorInput" value="#ff3b3b">
+<button id="saveCountdown">Save Countdown & Sell</button>
+</section>
 
 <script>
-// --- Hero & Static ---
-const heroImage = document.getElementById('heroImage');
-const staticImage = document.getElementById('staticImage');
+// --- Hero ---
+const heroUpload = document.getElementById('heroUpload');
+const heroPreview = document.getElementById('heroPreview');
+const heroSizeInput = document.getElementById('heroSize');
+const heroSaveBtn = document.getElementById('heroSave');
+const heroDeleteBtn = document.getElementById('heroDelete');
 
-// Load saved hero & size
-const savedHero = localStorage.getItem('headerImage');
-if(savedHero) {
-  heroImage.src = savedHero;
-  heroImage.style.transform = `scale(${localStorage.getItem('heroSize')||100}%)`;
+// Load hero preview if exists
+if(localStorage.getItem('headerImage')){
+  heroPreview.src = localStorage.getItem('headerImage');
+  heroSizeInput.value = localStorage.getItem('heroSize')||100;
 }
 
-// Load saved static & size
-const savedStatic = localStorage.getItem('staticImage');
-if(savedStatic) {
-  staticImage.src = savedStatic;
-  staticImage.style.transform = `scale(${localStorage.getItem('staticSize')||100}%)`;
+// Hero Save
+heroSaveBtn.addEventListener('click',()=>{
+  const file = heroUpload.files[0];
+  if(file){
+    const reader = new FileReader();
+    reader.onload = function(e){
+      localStorage.setItem('headerImage', e.target.result);
+      localStorage.setItem('heroSize', heroSizeInput.value);
+      heroPreview.src = e.target.result;
+      alert('Hero saved!');
+    }
+    reader.readAsDataURL(file);
+  } else {
+    alert('Please choose a file.');
+  }
+});
+
+// Hero Delete
+heroDeleteBtn.addEventListener('click',()=>{
+  localStorage.removeItem('headerImage');
+  localStorage.removeItem('heroSize');
+  heroPreview.src='';
+  alert('Hero deleted!');
+});
+
+// --- Static ---
+const staticUpload = document.getElementById('staticUpload');
+const staticPreview = document.getElementById('staticPreview');
+const staticSizeInput = document.getElementById('staticSize');
+const staticSaveBtn = document.getElementById('staticSave');
+const staticDeleteBtn = document.getElementById('staticDelete');
+
+if(localStorage.getItem('staticImage')){
+  staticPreview.src = localStorage.getItem('staticImage');
+  staticSizeInput.value = localStorage.getItem('staticSize')||100;
 }
+
+staticSaveBtn.addEventListener('click',()=>{
+  const file = staticUpload.files[0];
+  if(file){
+    const reader = new FileReader();
+    reader.onload = function(e){
+      localStorage.setItem('staticImage', e.target.result);
+      localStorage.setItem('staticSize', staticSizeInput.value);
+      staticPreview.src = e.target.result;
+      alert('Static saved!');
+    }
+    reader.readAsDataURL(file);
+  } else {
+    alert('Please choose a file.');
+  }
+});
+
+staticDeleteBtn.addEventListener('click',()=>{
+  localStorage.removeItem('staticImage');
+  localStorage.removeItem('staticSize');
+  staticPreview.src='';
+  alert('Static deleted!');
+});
 
 // --- Slider ---
-let sliderImagesContainer = document.getElementById('sliderImages');
+const sliderUpload = document.getElementById('sliderUpload');
+const sliderList = document.getElementById('sliderList');
+
 let sliderImages = JSON.parse(localStorage.getItem('sliderImages')) || [];
+renderSlider();
+
+sliderUpload.addEventListener('change',()=>{
+  const files = Array.from(sliderUpload.files);
+  files.forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = function(e){
+      sliderImages.push(e.target.result);
+      if(sliderImages.length>5) sliderImages = sliderImages.slice(-5); // max 5
+      localStorage.setItem('sliderImages', JSON.stringify(sliderImages));
+      renderSlider();
+    }
+    reader.readAsDataURL(file);
+  });
+});
 
 function renderSlider(){
-  sliderImagesContainer.innerHTML = '';
+  sliderList.innerHTML='';
   sliderImages.forEach((src,i)=>{
     const img = document.createElement('img');
     img.src = src;
-    img.style.transform = `scale(${(localStorage.getItem(`sliderSize_${i}`)||100)/100})`;
-    sliderImagesContainer.appendChild(img);
+    img.title = 'Click to delete';
+    img.addEventListener('click',()=>{
+      if(confirm('Delete this slider image?')){
+        sliderImages.splice(i,1);
+        localStorage.setItem('sliderImages', JSON.stringify(sliderImages));
+        renderSlider();
+      }
+    });
+    sliderList.appendChild(img);
   });
 }
-renderSlider();
 
-// Auto-slide
-let currentIndex = 0;
-function autoSlide(){
-  if(sliderImages.length == 0) return;
-  currentIndex++;
-  if(currentIndex >= sliderImages.length) currentIndex = 0;
-  sliderImagesContainer.style.transform = `translateX(${-currentIndex*sliderImagesContainer.clientWidth}px)`;
-}
-setInterval(autoSlide, 3000);
-window.addEventListener('resize', ()=>{ 
-  sliderImagesContainer.style.transform = `translateX(${-currentIndex*sliderImagesContainer.clientWidth}px)`;
+// --- Countdown + Sell ---
+const saveCountdownBtn = document.getElementById('saveCountdown');
+saveCountdownBtn.addEventListener('click',()=>{
+  localStorage.setItem('timerMinutes', document.getElementById('timerMinutes').value);
+  localStorage.setItem('saleText', document.getElementById('saleTextInput').value);
+  localStorage.setItem('saleTextColor', document.getElementById('saleTextColorInput').value);
+  localStorage.setItem('timerBgColor', document.getElementById('timerBgColorInput').value);
+  localStorage.setItem('sellText', document.getElementById('sellTextInput').value);
+  localStorage.setItem('sellTextColor', document.getElementById('sellTextColorInput').value);
+  localStorage.setItem('sellBgColor', document.getElementById('sellBgColorInput').value);
+  alert('Countdown & Sell button settings saved!');
 });
-
-// --- Countdown Timer ---
-let totalTime = (localStorage.getItem('timerMinutes')||20)*60;
-const timerDisplay = document.getElementById('timer');
-function updateTimer(){
-  const minutes = Math.floor(totalTime/60);
-  const seconds = totalTime%60;
-  timerDisplay.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
-  if(totalTime>0) totalTime--;
-  else clearInterval(countdownInterval);
-}
-const countdownInterval = setInterval(updateTimer,1000);
-updateTimer();
-
-// Load countdown & sell styles
-document.getElementById('saleText').textContent = localStorage.getItem('saleText')||'Sale of the Day';
-document.getElementById('saleText').style.color = localStorage.getItem('saleTextColor')||'#ff3b3b';
-document.getElementById('timerBox').style.background = localStorage.getItem('timerBgColor')||'#ffffff';
-
-const sellBtn = document.getElementById('sellButton');
-sellBtn.textContent = localStorage.getItem('sellText')||'Sell is Live';
-sellBtn.style.color = localStorage.getItem('sellTextColor')||'#ffffff';
-sellBtn.style.background = localStorage.getItem('sellBgColor')||'#ff3b3b';
-sellBtn.addEventListener('click',()=>{ alert('Sell is Live clicked!'); });
 </script>
 </body>
 </html>
