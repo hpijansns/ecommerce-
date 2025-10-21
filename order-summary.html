@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Summary</title>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#f4f4f4;}
+.container{max-width:800px;margin:auto;padding:20px;background:#fff;}
+.steps{display:flex;justify-content:space-between;margin-bottom:20px;}
+.step{flex:1;text-align:center;position:relative;}
+.step:not(:last-child)::after{content:'';position:absolute;top:15px;right:0;width:100%;height:2px;background:#ccc;z-index:-1;}
+.step.completed{color:green;font-weight:bold;}
+.step.current{color:#ff6600;font-weight:bold;}
+h2{margin-top:0;margin-bottom:10px;}
+.product-item{display:flex;gap:10px;border-bottom:1px solid #ddd;padding:10px 0;align-items:center;}
+.product-item img{width:80px;height:80px;object-fit:cover;border-radius:5px;}
+.product-info{flex:1;}
+.product-info h3{margin:0;font-size:16px;}
+.product-info p{margin:5px 0;font-size:14px;}
+.price-details{background:#f9f9f9;padding:10px;border-radius:5px;margin-top:20px;}
+.price-details p{display:flex;justify-content:space-between;margin:5px 0;}
+.total{font-weight:bold;font-size:18px;}
+.bottom-btn{position:fixed;bottom:0;left:0;width:100%;display:flex;}
+.bottom-btn button{flex:1;padding:15px;font-size:16px;border:none;cursor:pointer;}
+.proceed{background:#ff6600;color:#fff;}
+.cancel{background:#ccc;color:#000;}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Step Indicator -->
+    <div class="steps">
+        <div class="step completed">Address</div>
+        <div class="step current">Order Summary</div>
+        <div class="step">Payment</div>
+    </div>
+
+    <h2>Your Order</h2>
+    <div id="orderItems"></div>
+
+    <div class="price-details">
+        <p>Subtotal: <span id="subtotal">₹0</span></p>
+        <p>Discount: <span id="discount">₹0</span></p>
+        <p>Delivery Charges: <span id="delivery">₹0</span></p>
+        <p class="total">Total Payable: <span id="total">₹0</span></p>
+    </div>
+</div>
+
+<div class="bottom-btn">
+    <button class="cancel" onclick="goBack()">Cancel</button>
+    <button class="proceed" onclick="proceedPayment()">Proceed to Payment</button>
+</div>
+
+<script>
+// Get product and address info from localStorage
+const id = new URLSearchParams(window.location.search).get('id') || 0;
+const key = 'product_'+id+'_';
+const products = JSON.parse(localStorage.getItem('products')||'[]');
+const product = products[id] || {name:'Product', oldPrice:1000, newPrice:799, discount:20, detail:'Product description here'};
+const selectedStorage = localStorage.getItem(key+'selectedStorage') || '128GB';
+const quantity = parseInt(localStorage.getItem(key+'quantity')||1);
+
+// Render order item
+const orderItemsDiv = document.getElementById('orderItems');
+orderItemsDiv.innerHTML = `
+<div class="product-item">
+    <img src="${localStorage.getItem(key+'main') || 'https://via.placeholder.com/80'}" alt="${product.name}">
+    <div class="product-info">
+        <h3>${product.name}</h3>
+        <p>Storage/Size: ${selectedStorage}</p>
+        <p>Quantity: ${quantity}</p>
+        <p>Price: ₹${product.newPrice} <span style="text-decoration:line-through;color:gray;">₹${product.oldPrice}</span> <span style="color:green;font-weight:bold;">${product.discount}% OFF</span></p>
+    </div>
+</div>
+`;
+
+// Calculate prices
+const subtotal = product.newPrice * quantity;
+const discountAmount = ((product.oldPrice - product.newPrice) * quantity);
+const deliveryCharge = 0; // free
+const total = subtotal - discountAmount + deliveryCharge;
+
+document.getElementById('subtotal').innerText = '₹'+subtotal;
+document.getElementById('discount').innerText = '₹'+discountAmount;
+document.getElementById('delivery').innerText = '₹'+deliveryCharge;
+document.getElementById('total').innerText = '₹'+total;
+
+// Button actions
+function goBack(){
+    window.history.back();
+}
+function proceedPayment(){
+    // save total or order info if needed
+    window.location.href='payment.html?id='+id;
+}
+</script>
+
+</body>
+</html>
