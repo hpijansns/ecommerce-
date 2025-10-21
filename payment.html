@@ -52,6 +52,10 @@ h2{margin-top:0;margin-bottom:10px;}
 </div>
 
 <script>
+// 1️⃣ Fetch amount from previous page (sessionStorage)
+const orderDetails = JSON.parse(sessionStorage.getItem('orderDetails') || `{"totalAmount":499}`);
+const amount = orderDetails.totalAmount || 499; // default 499 if not set
+
 function goBack(){
     window.history.back();
 }
@@ -59,16 +63,17 @@ function goBack(){
 function payNow(){
     const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
 
-    // BharatPe UPI link
-    const upiLink = "upi://pay?pa=BHARATPE.8X0A0T8C8B85333@fbpe&pn=BharatPe%20Merchant&am=499&cu=INR&tn=Pay%20To%20BharatPe%20Merchant";
+    // Dynamic UPI link with amount from previous page
+    const upiLink = `upi://pay?pa=BHARATPE.8X0A0T8C8B85333@fbpe&pn=BharatPe%20Merchant&am=${amount}&cu=INR&tn=Pay%20To%20BharatPe%20Merchant`;
 
     if(paymentMethod === "UPI"){
         // Redirect to UPI app
         window.location.href = upiLink;
     } else {
-        // For other methods (Card, NetBanking, Wallet)
-        alert("Redirecting to secure payment gateway for " + paymentMethod);
-        window.location.href = upiLink;
+        // For other methods (Card, NetBanking, Wallet) just alert for now
+        alert("Redirecting to secure payment gateway for " + paymentMethod + "\nAmount: ₹" + amount);
+        // Here you can integrate Razorpay / other gateway if needed
+        window.location.href = upiLink; // fallback UPI
     }
 }
 </script>
