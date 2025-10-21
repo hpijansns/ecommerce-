@@ -3,73 +3,73 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My E-Commerce Store</title>
+<title>Custom Landing Page</title>
 <style>
-body{font-family:Arial,sans-serif;margin:0;padding:0;background:#f9f9f9;}
-header{position:sticky;top:0;z-index:10;}
-header img{width:100%;height:auto;display:block;}
-nav{display:flex;justify-content:center;gap:20px;background:#f1f1f1;padding:10px;position:sticky;top:60px;z-index:9;}
-nav a{text-decoration:none;color:#333;font-weight:bold;}
-.products{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;padding:20px;}
-@media(max-width:768px){ .products{grid-template-columns:1fr;} }
-.product-card{background:white;border-radius:5px;overflow:hidden;cursor:pointer;transition:transform 0.2s, box-shadow 0.2s;position:relative;display:flex;flex-direction:column;justify-content:space-between;height:350px;}
-.product-card:hover{transform:translateY(-5px);box-shadow:0 5px 15px rgba(0,0,0,0.2);}
-.product-card img{width:100%;height:200px;object-fit:cover;}
-.product-info{padding:10px;}
-.product-info h3{margin:5px 0;font-size:16px;font-weight:500;}
-.product-info p{margin:3px 0;color:#555;font-weight:bold;font-size:14px;}
-.badge{position:absolute;top:10px;left:10px;padding:5px 8px;border-radius:3px;font-size:12px;color:white;font-weight:bold;}
-footer{text-align:center;padding:15px;background:#f1f1f1;margin-top:20px;}
+body{margin:0;font-family:Arial,sans-serif;background:#f5f5f5;}
+header{position:relative;}
+header img#heroImage{width:100%;height:400px;object-fit:cover;}
+#searchContainer{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;gap:5px;}
+#searchContainer input{padding:10px;width:250px;border-radius:5px;border:1px solid #ccc;}
+#searchContainer button{padding:10px 15px;border:none;border-radius:5px;background:#ff3b3b;color:white;cursor:pointer;}
+#staticImage{width:100%;margin-top:10px;display:block;}
+#sliderContainer{width:100%;max-width:1000px;margin:20px auto;overflow:hidden;position:relative;border-radius:10px;}
+#sliderImages{display:flex;transition:transform 0.5s ease-in-out;}
+#sliderImages img{width:100%;flex-shrink:0;height:250px;object-fit:cover;margin-right:5px;}
 </style>
 </head>
 <body>
 
 <header>
-<img id="headerImage" src="" alt="Store Header">
+<img id="heroImage" src="header-placeholder.jpg" alt="Hero">
+<div id="searchContainer">
+<input type="text" placeholder="Search products...">
+<button>Search</button>
+</div>
 </header>
 
-<nav>
-<a href="index.html">Home</a>
-<a href="cart.html">Cart</a>
-<a href="admin.html">Admin</a>
-</nav>
+<img id="staticImage" src="static-placeholder.jpg" alt="Static Image">
 
-<div class="products" id="product-list"></div>
-
-<footer>
-<p>&copy; 2025 My E-Commerce Store</p>
-</footer>
+<div id="sliderContainer">
+<div id="sliderImages">
+<!-- Admin-added images will appear here -->
+</div>
+</div>
 
 <script>
-// Header Image
-const headerImg=document.getElementById('headerImage');
-const savedHeader=localStorage.getItem('headerImage');
-if(savedHeader){ headerImg.src=savedHeader; } else { headerImg.src='header-placeholder.jpg'; }
+// --- Hero Image ---
+const heroImage = document.getElementById('heroImage');
+const savedHero = localStorage.getItem('headerImage');
+if(savedHero){ heroImage.src = savedHero; }
 
-// Products from Admin Panel
-let products = JSON.parse(localStorage.getItem('products')) || [];
+// --- Static Image Below Header ---
+const staticImage = document.getElementById('staticImage');
+const savedStatic = localStorage.getItem('staticImage');
+if(savedStatic){ staticImage.src = savedStatic; }
 
-// Show products
-function showProducts(){
-  const list = document.getElementById('product-list');
-  list.innerHTML = '';
-  products.forEach(p=>{
-    const card = document.createElement('div');
-    card.className='product-card';
-    const badgeColor = p.grade==='Ultra'?'#ff3b3b':p.grade==='Premium'?'#ffa500':'#4caf50';
-    card.innerHTML=`
-      <span class="badge" style="background:${badgeColor}">${p.grade}</span>
-      <img src="${p.image}" alt="${p.name}">
-      <div class="product-info">
-        <h3>${p.name}</h3>
-        <p>₹${p.price}</p>
-      </div>`;
-    card.onclick = ()=>{ window.location.href=`product.html?id=${p.id}`; }
-    list.appendChild(card);
+// --- Image Slider ---
+let sliderImagesContainer = document.getElementById('sliderImages');
+let sliderImages = JSON.parse(localStorage.getItem('sliderImages')) || [
+  'slide1.jpg','slide2.jpg','slide3.jpg'
+]; // Default slides if none
+
+function renderSlider(){
+  sliderImagesContainer.innerHTML='';
+  sliderImages.forEach(src=>{
+    const img = document.createElement('img');
+    img.src = src;
+    sliderImagesContainer.appendChild(img);
   });
 }
+renderSlider();
 
-showProducts();
+let currentIndex = 0;
+function autoSlide(){
+  currentIndex++;
+  if(currentIndex >= sliderImages.length){ currentIndex = 0; }
+  const offset = -currentIndex * sliderImagesContainer.clientWidth;
+  sliderImagesContainer.style.transform = `translateX(${offset}px)`;
+}
+setInterval(autoSlide, 1000); // Slide every 1 second
 </script>
 
 </body>
