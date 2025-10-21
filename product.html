@@ -6,127 +6,108 @@
 <title>Product Page</title>
 <style>
 body{margin:0;padding:0;font-family:Arial,sans-serif;background:#f4f4f4;}
-header{width:100%;}
 header img{width:100%;height:auto;object-fit:cover;}
-#slider{width:100%;overflow:hidden;position:relative;margin:10px 0;}
-#slider img{width:100%;height:250px;object-fit:cover;display:none;}
+#slider img{width:100%;display:none;height:250px;object-fit:cover;border-bottom:1px solid #ddd;}
 #slider img.active{display:block;}
-.container{max-width:800px;margin:auto;background:#fff;padding:10px;}
-.storage-select{margin:10px 0;}
-.product-detail{margin:10px 0;}
-.product-detail .price{font-size:16px;color:#555;}
-.product-detail .price del{color:gray;margin-right:5px;text-decoration:line-through;}
-.product-detail .discount{color:green;font-weight:bold;}
-#countdown{background:orange;color:#fff;padding:5px 10px;border-radius:5px;font-weight:bold;margin:10px 0;display:inline-block;}
-.bottom-images{display:flex;gap:5px;margin:10px 0;}
-.bottom-images img{width:32%;height:100px;object-fit:cover;border-radius:5px;}
-.fixed-buttons{position:fixed;bottom:0;left:0;width:100%;display:flex;}
-.fixed-buttons button{flex:1;padding:15px;font-size:16px;font-weight:bold;cursor:pointer;border:none;}
-#addCart{background:#3b82f6;color:#fff;}
+.storage{margin:10px 0;}
+.storage select{padding:5px;width:150px;}
+.details{background:#fff;padding:10px;margin:10px;border-radius:5px;}
+.details .discount{color:green;font-weight:bold;}
+.details .oldPrice{color:gray;text-decoration:line-through;margin-right:5px;}
+#countdown{margin:10px 0;padding:5px;background:orange;color:#fff;border-radius:5px;display:inline-block;font-weight:bold;}
+.bottom-images{display:flex;gap:10px;margin:10px 0;}
+.bottom-images img{width:30%;border-radius:5px;object-fit:cover;}
+.buttons{position:fixed;bottom:0;left:0;width:100%;display:flex;}
+.buttons button{flex:1;padding:15px;font-size:16px;border:none;cursor:pointer;}
+#addCart{background:#ff3b3b;color:#fff;}
 #buyNow{background:yellow;color:#000;}
-@media(max-width:768px){
-  #slider img{height:180px;}
-  .bottom-images img{width:32%;height:80px;}
-}
 </style>
 </head>
 <body>
 
-<!-- Header Image -->
 <header>
-<img id="headerImage" src="https://via.placeholder.com/800x200?text=Header+Image" alt="Header">
+  <img id="headerImage" src="https://via.placeholder.com/1200x200?text=Header+Image" alt="Header">
 </header>
 
-<!-- Slider Images -->
-<div id="slider">
-  <img src="https://via.placeholder.com/800x250?text=Slide+1" class="active">
-  <img src="https://via.placeholder.com/800x250?text=Slide+2">
-  <img src="https://via.placeholder.com/800x250?text=Slide+3">
+<div id="slider"></div>
+
+<div class="storage">
+  <label>Select Storage:</label>
+  <select id="storageSelect">
+    <option value="128GB">128GB</option>
+    <option value="256GB">256GB</option>
+    <option value="512GB">512GB</option>
+    <option value="1TB">1TB</option>
+  </select>
 </div>
 
-<!-- Storage Selection -->
-<div class="container">
-  <div class="storage-select">
-    <label for="storage">Select Storage:</label>
-    <select id="storage">
-      <option value="1TB">1 TB</option>
-      <option value="512GB">512 GB</option>
-      <option value="128GB">128 GB</option>
-    </select>
-  </div>
+<div class="details" id="productDetails"></div>
 
-  <!-- Product Details -->
-  <div class="product-detail" id="productDetail"></div>
+<div id="countdown">Time Left: <span id="timer">20:00</span></div>
 
-  <!-- Single Image -->
-  <div>
-    <img id="singleImage" src="https://via.placeholder.com/800x150?text=Single+Image" alt="Single">
-  </div>
-
-  <!-- Countdown -->
-  <div id="countdown">20:00</div>
-
-  <!-- Bottom Images -->
-  <div class="bottom-images">
-    <img src="https://via.placeholder.com/250x100?text=Bottom+1">
-    <img src="https://via.placeholder.com/250x100?text=Bottom+2">
-    <img src="https://via.placeholder.com/250x100?text=Bottom+3">
-  </div>
+<div class="bottom-images" id="bottomImages">
+  <img src="https://via.placeholder.com/200x100?text=Image1" alt="Bottom1">
+  <img src="https://via.placeholder.com/200x100?text=Image2" alt="Bottom2">
+  <img src="https://via.placeholder.com/200x100?text=Image3" alt="Bottom3">
 </div>
 
-<!-- Fixed Buttons -->
-<div class="fixed-buttons">
+<div class="buttons">
   <button id="addCart">Add to Cart</button>
   <button id="buyNow">Buy Now</button>
 </div>
 
 <script>
-// Slider functionality
-let slides = document.querySelectorAll('#slider img');
-let current = 0;
-setInterval(()=>{
-  slides[current].classList.remove('active');
-  current = (current+1)%slides.length;
-  slides[current].classList.add('active');
-},3000);
-
-// Load product details from previous page
+// Load product details
 const params = new URLSearchParams(window.location.search);
-const id = params.get('id');
-const products = JSON.parse(localStorage.getItem('products')||'[]');
-const product = products[id];
-const detailContainer = document.getElementById('productDetail');
+const id = params.get('id') || 0;
 
-if(product){
-  detailContainer.innerHTML = `
-    <h2>${product.name}</h2>
-    <div class="price"><del>₹${product.oldPrice}</del> <span>₹${product.newPrice}</span></div>
-    <div class="discount">${product.discount}% OFF</div>
-    <p>Free Delivery in 2 Days</p>
-  `;
-}else{
-  detailContainer.innerHTML = '<p>Product not found</p>';
+const products = JSON.parse(localStorage.getItem('products')||'[]');
+const product = products[id] || {name:'Product', oldPrice:1000, newPrice:499, discount:50};
+
+const details = document.getElementById('productDetails');
+details.innerHTML = `
+  <h2>${product.name}</h2>
+  <p><span class="oldPrice">₹${product.oldPrice}</span><span>₹${product.newPrice}</span></p>
+  <p class="discount">${product.discount}% OFF</p>
+`;
+
+// Slider
+const sliderContainer = document.getElementById('slider');
+const sliderImages = JSON.parse(localStorage.getItem('product_'+id+'_slider')||'[]');
+if(sliderImages.length>0){
+  sliderImages.forEach((img,i)=>{
+    const image = document.createElement('img');
+    image.src = img;
+    if(i===0) image.classList.add('active');
+    sliderContainer.appendChild(image);
+  });
+  let current = 0;
+  setInterval(()=>{
+    const imgs = sliderContainer.querySelectorAll('img');
+    imgs[current].classList.remove('active');
+    current = (current+1)%imgs.length;
+    imgs[current].classList.add('active');
+  },3000);
 }
 
-// Countdown Timer
-let countdown = 20*60; // 20 minutes
-const countdownEl = document.getElementById('countdown');
-function updateTimer(){
+// Countdown
+let countdown = 20*60;
+const timerEl = document.getElementById('timer');
+setInterval(()=>{
   const m = Math.floor(countdown/60);
   const s = countdown%60;
-  countdownEl.innerText = `${m}:${s<10?'0'+s:s}`;
+  timerEl.innerText = `${m}:${s<10?'0'+s:s}`;
   countdown--;
   if(countdown<0) countdown=0;
-}
-setInterval(updateTimer,1000);
+},1000);
 
-// Buttons redirect
-document.getElementById('addCart').addEventListener('click',()=>{
-  window.location.href='nextpage.html';
-});
-document.getElementById('buyNow').addEventListener('click',()=>{
-  window.location.href='nextpage.html';
-});
+// Buttons
+document.getElementById('addCart').onclick = ()=>{
+  window.location.href = 'nextpage.html';
+}
+document.getElementById('buyNow').onclick = ()=>{
+  window.location.href = 'nextpage.html';
+}
 </script>
 
 </body>
