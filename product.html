@@ -3,167 +3,149 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Product Detail</title>
+<title>Product Page</title>
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:#f4f4f4;}
-/* Header image */
-#headerImage{width:100%;height:300px;object-fit:cover;}
-/* Container */
-.container{max-width:800px;margin:auto;padding:10px;}
-/* Slider */
-#sliderContainer{position:relative;width:100%;height:300px;overflow:hidden;margin-bottom:15px;}
-#sliderContainer img{width:100%;height:100%;object-fit:cover;display:none;border-radius:10px;}
-#sliderContainer img.active{display:block;transition:0.5s;}
-/* Storage selection */
-#storageSelect{margin-bottom:15px;}
-#storageSelect button{padding:8px 12px;margin-right:10px;border:none;border-radius:5px;cursor:pointer;background:#ddd;}
-#storageSelect button.active{background:#ff3b3b;color:#fff;}
-/* Product details */
-#productDetails{background:#fff;padding:15px;border-radius:10px;margin-bottom:15px;box-shadow:0 2px 5px rgba(0,0,0,0.1);}
-#productDetails h2{margin:5px 0;}
-#productDetails .price{font-weight:bold;margin:5px 0;}
-#productDetails .price del{color:gray;margin-right:5px;}
-#productDetails .discount{color:green;font-weight:bold;}
-/* Offer / Countdown */
-#offerSection{display:flex;justify-content:space-between;align-items:center;background:#fff;padding:10px;border-radius:10px;margin-bottom:15px;box-shadow:0 2px 5px rgba(0,0,0,0.1);}
-#offerSection span{font-weight:bold;}
-#timer{padding:5px 10px;border-radius:5px;font-weight:bold;background:#eee;}
-/* Extra Images */
-.extraImage{width:100%;height:150px;object-fit:cover;margin-bottom:10px;border-radius:10px;}
-/* Bottom Buttons */
-#bottomButtons{position:fixed;bottom:0;left:0;width:100%;display:flex;gap:10px;padding:10px;background:#fff;box-shadow:0 -2px 5px rgba(0,0,0,0.1);}
-#bottomButtons button{flex:1;padding:15px;font-weight:bold;border:none;border-radius:5px;cursor:pointer;font-size:16px;}
-#addCart{background:#ff3b3b;color:#fff;}
-#buyNow{background:#ffeb3b;color:#000;}
-/* Mobile */
-@media(max-width:768px){#sliderContainer{height:200px;}}
+body{margin:0;padding:0;font-family:Arial,sans-serif;background:#f4f4f4;}
+header img{width:100%;height:auto;display:block;object-fit:cover;border-bottom:1px solid #ddd;}
+#productSlider{width:100%;overflow:hidden;position:relative;margin:10px 0;}
+#productSlider img{width:100%;display:none;object-fit:cover;border-radius:8px;}
+#productSlider img.active{display:block;}
+#storageOptions{margin:10px;padding:0 10px;}
+.storage-btn{padding:8px 12px;margin:5px;border:1px solid #ccc;border-radius:5px;cursor:pointer;display:inline-block;}
+#productDetails{background:#fff;padding:10px;margin:10px;border-radius:8px;box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+#countdownSection{background:#fff;padding:10px;margin:10px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;}
+#bottomImages{margin:10px;padding:0 10px;display:flex;flex-direction:column;gap:10px;}
+#bottomImages img{width:100%;border-radius:5px;object-fit:cover;}
+.action-buttons{position:fixed;bottom:0;left:0;width:100%;display:flex;}
+.action-buttons button{flex:1;padding:15px;font-size:16px;border:none;cursor:pointer;}
+#addToCart{background:#ff3b3b;color:#fff;}
+#buyNow{background:yellow;color:#000;}
 </style>
 </head>
 <body>
 
-<!-- Header image (first product image) -->
-<img id="headerImage" src="" alt="Header Image">
+<!-- 1. Header Image -->
+<header>
+  <img id="headerImage" src="" alt="Header Image">
+</header>
 
-<div class="container">
+<!-- 2. Product Image Slider -->
+<section id="productSlider"></section>
 
-  <!-- Slider (other product images) -->
-  <div id="sliderContainer"></div>
+<!-- 3. Storage Options -->
+<div id="storageOptions"></div>
 
-  <!-- Storage Selection -->
-  <div id="storageSelect"></div>
-
-  <!-- Product Details -->
-  <div id="productDetails"></div>
-
-  <!-- Offer / Countdown -->
-  <div id="offerSection">
-    <span id="offerText"></span>
-    <span id="timer"></span>
-  </div>
-
-  <!-- Extra Images -->
-  <img class="extraImage" id="extra1" src="" alt="Extra Image 1">
-  <img class="extraImage" id="extra2" src="" alt="Extra Image 2">
-  <img class="extraImage" id="extra3" src="" alt="Extra Image 3">
-
+<!-- 4. Product Details -->
+<div id="productDetails">
+  <h2 id="prodName"></h2>
+  <p><span id="oldPrice"></span> <span id="newPrice"></span> <span id="discount"></span></p>
+  <p id="prodDesc"></p>
 </div>
 
-<!-- Bottom Buttons -->
-<div id="bottomButtons">
-  <button id="addCart">Add to Cart</button>
+<!-- 5. Countdown -->
+<div id="countdownSection">
+  <span id="saleText"></span>
+  <span id="timer"></span>
+  <button id="sellBtn"></button>
+</div>
+
+<!-- 6. Bottom 3 Images -->
+<div id="bottomImages"></div>
+
+<!-- 7. Bottom Fixed Buttons -->
+<div class="action-buttons">
+  <button id="addToCart">Add to Cart</button>
   <button id="buyNow">Buy Now</button>
 </div>
 
 <script>
-// Load product id
+// Get product ID from URL
 const params = new URLSearchParams(window.location.search);
 const id = params.get('id');
 const products = JSON.parse(localStorage.getItem('products')||'[]');
 const product = products[id];
 
 if(product){
-  const images = product.images || [product.image];
-  // First image as header
-  document.getElementById('headerImage').src = images[0];
+  // 1. Header Image
+  if(product.headerImage) document.getElementById('headerImage').src = product.headerImage;
 
-  // Slider for remaining images
-  const sliderContainer = document.getElementById('sliderContainer');
-  let sliderIndex = 0;
-  images.slice(1).forEach((src,i)=>{
+  // 2. Product Image Slider
+  const sliderContainer = document.getElementById('productSlider');
+  const sliderImages = product.extraImages || [];
+  sliderImages.forEach((src,i)=>{
     const img = document.createElement('img');
     img.src = src;
     if(i===0) img.classList.add('active');
     sliderContainer.appendChild(img);
   });
-  if(images.length>1){
-    setInterval(()=>{
-      const imgs = sliderContainer.querySelectorAll('img');
-      imgs[sliderIndex].classList.remove('active');
-      sliderIndex = (sliderIndex+1)%imgs.length;
-      imgs[sliderIndex].classList.add('active');
-    },3000);
-  }
+  let current = 0;
+  setInterval(()=>{
+    const imgs = sliderContainer.querySelectorAll('img');
+    if(imgs.length===0) return;
+    imgs[current].classList.remove('active');
+    current = (current+1)%imgs.length;
+    imgs[current].classList.add('active');
+  },3000);
 
-  // Storage selection
-  const storageSelect = document.getElementById('storageSelect');
-  const storageOptions = product.storage || ['1TB','512GB','128GB'];
-  storageOptions.forEach((s,i)=>{
-    const btn = document.createElement('button');
+  // 3. Storage Options
+  const storageDiv = document.getElementById('storageOptions');
+  (product.storages||[]).forEach(s=>{
+    const btn = document.createElement('div');
+    btn.className='storage-btn';
     btn.innerText = s;
-    if(i===0) btn.classList.add('active');
-    btn.onclick = ()=>{
-      document.querySelectorAll('#storageSelect button').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      renderDetails(s);
-    };
-    storageSelect.appendChild(btn);
+    storageDiv.appendChild(btn);
   });
 
-  // Product details render
-  function renderDetails(storage){
-    const detailsDiv = document.getElementById('productDetails');
-    const info = product.details[storage] || product.details['1TB'];
-    detailsDiv.innerHTML=`
-      <h2>${product.name} (${storage})</h2>
-      <div class="price"><del>₹${info.oldPrice}</del> <span>₹${info.newPrice}</span></div>
-      <div class="discount">${info.discount}% OFF</div>
-      <p>${info.description}</p>
-    `;
-  }
-  renderDetails(storageOptions[0]);
+  // 4. Product Details
+  document.getElementById('prodName').innerText = product.name || '';
+  document.getElementById('oldPrice').innerText = product.oldPrice ? `₹${product.oldPrice}` : '';
+  document.getElementById('newPrice').innerText = product.newPrice ? `₹${product.newPrice}` : '';
+  document.getElementById('discount').innerText = product.discount ? `${product.discount}% OFF` : '';
+  document.getElementById('prodDesc').innerText = product.description || '';
 
-  // Offer / Countdown
-  const offerText = document.getElementById('offerText');
-  const timerEl = document.getElementById('timer');
-  const saleText = localStorage.getItem('saleText') || 'Offer of the Day';
-  const saleColor = localStorage.getItem('saleTextColor') || '#ff3b3b';
-  const timerMinutes = parseInt(localStorage.getItem('timerMinutes')||20);
-  offerText.innerText = saleText;
-  offerText.style.color = saleColor;
+  // 5. Countdown Timer & Sell Button
+  const saleText = product.saleText || 'Sale of the Day';
+  const saleColor = product.saleTextColor || '#ff3b3b';
+  const timerMinutes = parseInt(product.timerMinutes||20);
+  const timerBg = product.timerBgColor || '#fff';
+  const sellText = product.sellText || 'Buy Now';
+  const sellTextColor = product.sellTextColor || '#fff';
+  const sellBg = product.sellBgColor || '#ff3b3b';
+
+  document.getElementById('saleText').innerText = saleText;
+  document.getElementById('saleText').style.color = saleColor;
+  document.getElementById('timer').style.backgroundColor = timerBg;
+  document.getElementById('sellBtn').innerText = sellText;
+  document.getElementById('sellBtn').style.color = sellTextColor;
+  document.getElementById('sellBtn').style.backgroundColor = sellBg;
 
   let countdown = timerMinutes*60;
-  function updateTimer(){
+  const timerEl = document.getElementById('timer');
+  const interval = setInterval(()=>{
     const m = Math.floor(countdown/60);
     const s = countdown%60;
     timerEl.innerText = `${m}:${s<10?'0'+s:s}`;
     countdown--;
-    if(countdown<0) clearInterval(countdownInterval);
-  }
-  updateTimer();
-  const countdownInterval = setInterval(updateTimer,1000);
+    if(countdown<0) clearInterval(interval);
+  },1000);
 
-  // Extra Images
-  document.getElementById('extra1').src = product.extraImages[0] || '';
-  document.getElementById('extra2').src = product.extraImages[1] || '';
-  document.getElementById('extra3').src = product.extraImages[2] || '';
+  // 6. Bottom 3 Images
+  const bottomDiv = document.getElementById('bottomImages');
+  (product.bottomImages||[]).forEach(src=>{
+    const img = document.createElement('img');
+    img.src = src;
+    bottomDiv.appendChild(img);
+  });
 
-  // Bottom buttons
-  document.getElementById('addCart').onclick = ()=>alert(`${product.name} added to cart`);
-  document.getElementById('buyNow').onclick = ()=>alert(`Proceed to buy ${product.name}`);
-}else{
-  document.getElementById('container').innerHTML='<p>Product not found</p>';
+  // 7. Bottom Buttons Navigation - BOTH go to same page
+  const nextPage = 'checkout.html?id='+id; // donon same page
+  document.getElementById('addToCart').onclick = ()=>{
+    window.location.href = nextPage;
+  };
+  document.getElementById('buyNow').onclick = ()=>{
+    window.location.href = nextPage;
+  };
 }
 </script>
-
 </body>
 </html>
