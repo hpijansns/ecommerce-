@@ -1,198 +1,218 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Panel</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pintu's eCommerce</title>
 <style>
-body{font-family:Arial,sans-serif;background:#f5f5f5;margin:0;padding:20px;}
-h1,h2{color:#333;}
-section{background:#fff;padding:15px;margin-bottom:20px;border-radius:5px;box-shadow:0 2px 6px rgba(0,0,0,0.1);}
-label{display:block;margin:10px 0 5px;}
-input[type="text"], input[type="color"], input[type="number"], input[type="file"]{padding:8px;width:100%;box-sizing:border-box;margin-bottom:10px;border-radius:5px;border:1px solid #ccc;}
-button{padding:10px 15px;border:none;border-radius:5px;background:#ff3b3b;color:white;cursor:pointer;margin-right:10px;margin-top:5px;}
-#sliderList img{width:80px;margin:5px;border:1px solid #ccc;border-radius:3px;cursor:pointer;}
-.flex-container{display:flex;gap:20px;flex-wrap:wrap;}
-.flex-item{flex:1;min-width:250px;}
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background: #f8f8f8;
+}
+
+/* Hero section */
+header {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#heroImage {
+  width: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+/* Search bar overlay */
+#searchContainer {
+  position: absolute;
+  top: 65%; /* slightly below center */
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 5px;
+}
+
+#searchInput {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px 0 0 5px;
+  outline: none;
+  width: 200px;
+}
+
+#searchBtn {
+  padding: 10px 15px;
+  background: #ff3b3b;
+  color: white;
+  border: none;
+  border-radius: 0 5px 5px 0;
+  cursor: pointer;
+}
+
+/* Static image section */
+#staticSection {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#staticImage {
+  width: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+/* Slider section */
+#slider {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+#slider img {
+  width: 100%;
+  height: auto;
+  display: none;
+  object-fit: contain;
+}
+
+#slider img.active {
+  display: block;
+}
+
+/* Countdown section */
+#countdownSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  padding: 10px 15px;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+}
+
+#saleText {
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+#timer {
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+#sellBtn {
+  padding: 8px 12px;
+  border-radius: 5px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* Responsive */
+@media(max-width:768px){
+  #searchInput{width:150px;}
+  #countdownSection{flex-direction:column;gap:10px;}
+}
 </style>
 </head>
 <body>
-<h1>Admin Panel</h1>
 
-<section>
-<h2>Hero & Static Images</h2>
-<div class="flex-container">
-  <div class="flex-item">
-    <h3>Hero Image</h3>
-    <input type="file" id="heroUpload">
-    <label>Size Ratio (%):</label>
-    <input type="number" id="heroSize" min="50" max="200" value="100">
-    <button id="heroSave">Save Hero</button>
-    <button id="heroDelete">Delete Hero</button>
-    <img id="heroPreview" src="" style="width:100%;margin-top:10px;object-fit:contain;"/>
+<header>
+  <img id="heroImage" src="" alt="Header Image">
+  <div id="searchContainer">
+    <input type="text" id="searchInput" placeholder="Search products...">
+    <button id="searchBtn">Search</button>
   </div>
+</header>
 
-  <div class="flex-item">
-    <h3>Static Image</h3>
-    <input type="file" id="staticUpload">
-    <label>Size Ratio (%):</label>
-    <input type="number" id="staticSize" min="50" max="200" value="100">
-    <button id="staticSave">Save Static</button>
-    <button id="staticDelete">Delete Static</button>
-    <img id="staticPreview" src="" style="width:100%;margin-top:10px;object-fit:contain;"/>
-  </div>
-</div>
+<section id="staticSection">
+  <img id="staticImage" src="" alt="Static Section">
 </section>
 
-<section>
-<h2>Slider Images (Max 5)</h2>
-<input type="file" id="sliderUpload" multiple>
-<div id="sliderList"></div>
-</section>
+<section id="slider"></section>
 
-<section>
-<h2>Countdown & Sell Button</h2>
-<label>Countdown Minutes:</label>
-<input type="number" id="timerMinutes" min="1" value="20">
-<label>Sale Text:</label>
-<input type="text" id="saleTextInput" value="Sale of the Day">
-<label>Sale Text Color:</label>
-<input type="color" id="saleTextColorInput" value="#ff3b3b">
-<label>Timer Background Color:</label>
-<input type="color" id="timerBgColorInput" value="#ffffff">
-<label>Sell Button Text:</label>
-<input type="text" id="sellTextInput" value="Sell is Live">
-<label>Sell Text Color:</label>
-<input type="color" id="sellTextColorInput" value="#ffffff">
-<label>Sell Background Color:</label>
-<input type="color" id="sellBgColorInput" value="#ff3b3b">
-<button id="saveCountdown">Save Countdown & Sell</button>
+<section id="countdownSection">
+  <span id="saleText"></span>
+  <span id="timer"></span>
+  <button id="sellBtn"></button>
 </section>
 
 <script>
-// --- Hero ---
-const heroUpload = document.getElementById('heroUpload');
-const heroPreview = document.getElementById('heroPreview');
-const heroSizeInput = document.getElementById('heroSize');
-const heroSaveBtn = document.getElementById('heroSave');
-const heroDeleteBtn = document.getElementById('heroDelete');
-
-// Load hero preview if exists
-if(localStorage.getItem('headerImage')){
-  heroPreview.src = localStorage.getItem('headerImage');
-  heroSizeInput.value = localStorage.getItem('heroSize')||100;
+// Load Hero
+const heroImage = localStorage.getItem('headerImage');
+const heroSize = localStorage.getItem('heroSize') || 100;
+if(heroImage){
+  document.getElementById('heroImage').src = heroImage;
+  document.getElementById('heroImage').style.width = heroSize + '%';
 }
 
-// Hero Save
-heroSaveBtn.addEventListener('click',()=>{
-  const file = heroUpload.files[0];
-  if(file){
-    const reader = new FileReader();
-    reader.onload = function(e){
-      localStorage.setItem('headerImage', e.target.result);
-      localStorage.setItem('heroSize', heroSizeInput.value);
-      heroPreview.src = e.target.result;
-      alert('Hero saved!');
-    }
-    reader.readAsDataURL(file);
-  } else {
-    alert('Please choose a file.');
-  }
-});
-
-// Hero Delete
-heroDeleteBtn.addEventListener('click',()=>{
-  localStorage.removeItem('headerImage');
-  localStorage.removeItem('heroSize');
-  heroPreview.src='';
-  alert('Hero deleted!');
-});
-
-// --- Static ---
-const staticUpload = document.getElementById('staticUpload');
-const staticPreview = document.getElementById('staticPreview');
-const staticSizeInput = document.getElementById('staticSize');
-const staticSaveBtn = document.getElementById('staticSave');
-const staticDeleteBtn = document.getElementById('staticDelete');
-
-if(localStorage.getItem('staticImage')){
-  staticPreview.src = localStorage.getItem('staticImage');
-  staticSizeInput.value = localStorage.getItem('staticSize')||100;
+// Load Static
+const staticImage = localStorage.getItem('staticImage');
+const staticSize = localStorage.getItem('staticSize') || 100;
+if(staticImage){
+  document.getElementById('staticImage').src = staticImage;
+  document.getElementById('staticImage').style.width = staticSize + '%';
 }
 
-staticSaveBtn.addEventListener('click',()=>{
-  const file = staticUpload.files[0];
-  if(file){
-    const reader = new FileReader();
-    reader.onload = function(e){
-      localStorage.setItem('staticImage', e.target.result);
-      localStorage.setItem('staticSize', staticSizeInput.value);
-      staticPreview.src = e.target.result;
-      alert('Static saved!');
-    }
-    reader.readAsDataURL(file);
-  } else {
-    alert('Please choose a file.');
-  }
-});
+// Load Slider
+const sliderImages = JSON.parse(localStorage.getItem('sliderImages')) || [];
+const sliderContainer = document.getElementById('slider');
 
-staticDeleteBtn.addEventListener('click',()=>{
-  localStorage.removeItem('staticImage');
-  localStorage.removeItem('staticSize');
-  staticPreview.src='';
-  alert('Static deleted!');
-});
-
-// --- Slider ---
-const sliderUpload = document.getElementById('sliderUpload');
-const sliderList = document.getElementById('sliderList');
-
-let sliderImages = JSON.parse(localStorage.getItem('sliderImages')) || [];
-renderSlider();
-
-sliderUpload.addEventListener('change',()=>{
-  const files = Array.from(sliderUpload.files);
-  files.forEach(file=>{
-    const reader = new FileReader();
-    reader.onload = function(e){
-      sliderImages.push(e.target.result);
-      if(sliderImages.length>5) sliderImages = sliderImages.slice(-5); // max 5
-      localStorage.setItem('sliderImages', JSON.stringify(sliderImages));
-      renderSlider();
-    }
-    reader.readAsDataURL(file);
-  });
-});
-
-function renderSlider(){
-  sliderList.innerHTML='';
-  sliderImages.forEach((src,i)=>{
+if(sliderImages.length > 0){
+  sliderImages.forEach((src, i)=>{
     const img = document.createElement('img');
     img.src = src;
-    img.title = 'Click to delete';
-    img.addEventListener('click',()=>{
-      if(confirm('Delete this slider image?')){
-        sliderImages.splice(i,1);
-        localStorage.setItem('sliderImages', JSON.stringify(sliderImages));
-        renderSlider();
-      }
-    });
-    sliderList.appendChild(img);
+    if(i === 0) img.classList.add('active');
+    sliderContainer.appendChild(img);
   });
+
+  let current = 0;
+  setInterval(()=>{
+    const imgs = sliderContainer.querySelectorAll('img');
+    imgs[current].classList.remove('active');
+    current = (current + 1) % imgs.length;
+    imgs[current].classList.add('active');
+  }, 3000);
 }
 
-// --- Countdown + Sell ---
-const saveCountdownBtn = document.getElementById('saveCountdown');
-saveCountdownBtn.addEventListener('click',()=>{
-  localStorage.setItem('timerMinutes', document.getElementById('timerMinutes').value);
-  localStorage.setItem('saleText', document.getElementById('saleTextInput').value);
-  localStorage.setItem('saleTextColor', document.getElementById('saleTextColorInput').value);
-  localStorage.setItem('timerBgColor', document.getElementById('timerBgColorInput').value);
-  localStorage.setItem('sellText', document.getElementById('sellTextInput').value);
-  localStorage.setItem('sellTextColor', document.getElementById('sellTextColorInput').value);
-  localStorage.setItem('sellBgColor', document.getElementById('sellBgColorInput').value);
-  alert('Countdown & Sell button settings saved!');
-});
+// Countdown & Sell button
+const timerMinutes = localStorage.getItem('timerMinutes') || 20;
+const saleText = localStorage.getItem('saleText') || 'Sale of the Day';
+const saleTextColor = localStorage.getItem('saleTextColor') || '#ff3b3b';
+const timerBgColor = localStorage.getItem('timerBgColor') || '#ffffff';
+const sellText = localStorage.getItem('sellText') || 'Sell is Live';
+const sellTextColor = localStorage.getItem('sellTextColor') || '#ffffff';
+const sellBgColor = localStorage.getItem('sellBgColor') || '#ff3b3b';
+
+document.getElementById('saleText').innerText = saleText;
+document.getElementById('saleText').style.color = saleTextColor;
+
+document.getElementById('sellBtn').innerText = sellText;
+document.getElementById('sellBtn').style.color = sellTextColor;
+document.getElementById('sellBtn').style.backgroundColor = sellBgColor;
+
+const timerElement = document.getElementById('timer');
+timerElement.style.backgroundColor = timerBgColor;
+
+let countdown = timerMinutes * 60;
+function updateTimer(){
+  const minutes = Math.floor(countdown / 60);
+  const seconds = countdown % 60;
+  timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  countdown--;
+  if(countdown < 0){
+    countdown = 0;
+    clearInterval(interval);
+  }
+}
+updateTimer();
+const interval = setInterval(updateTimer,1000);
 </script>
 </body>
 </html>
