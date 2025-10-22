@@ -3,155 +3,151 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Add Delivery Address</title>
+<title>Order Summary</title>
 <style>
 body {
-    margin: 0;
     font-family: Arial, sans-serif;
-    background: #f5f5f5;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
 }
 .container {
     max-width: 500px;
-    margin: 20px auto;
+    margin: 30px auto;
     background: #fff;
-    padding: 20px;
     border-radius: 8px;
+    padding: 20px;
 }
 h1 {
     text-align: center;
-    font-size: 24px;
+    color: #333;
+    font-size: 22px;
     margin-bottom: 20px;
 }
-.steps {
+.product {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 15px;
+}
+.product img {
+    width: 120px;
+    height: 120px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-right: 20px;
+}
+.product-details {
+    flex: 1;
+}
+.product-details h2 {
+    font-size: 18px;
+    margin: 0;
+    color: #222;
+}
+.product-details p {
+    font-size: 14px;
+    color: #555;
+}
+.price {
+    font-weight: bold;
+    font-size: 18px;
+    color: #ff6600;
+    margin-top: 5px;
+}
+.summary {
+    margin-top: 20px;
+    font-size: 15px;
+}
+.summary div {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 20px;
+    margin: 8px 0;
 }
-.step {
-    flex: 1;
-    text-align: center;
-    position: relative;
-}
-.step::after {
-    content: '';
-    position: absolute;
-    top: 12px;
-    right: -50%;
-    width: 100%;
-    height: 2px;
-    background: #ccc;
-    z-index: -1;
-}
-.step:last-child::after {
-    display: none;
-}
-.step.active {
+.total {
     font-weight: bold;
-    color: #ff6600;
-}
-form label {
-    display: block;
-    margin: 10px 0 5px;
-    font-weight: bold;
-}
-form input, form select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-form input:focus, form select:focus {
-    outline: none;
-    border-color: #ff6600;
+    font-size: 18px;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
 }
 button {
     width: 100%;
     background: #ff6600;
     color: #fff;
     padding: 15px;
-    font-size: 16px;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     margin-top: 20px;
+    font-size: 16px;
     cursor: pointer;
 }
 button:hover {
     background: #e65c00;
+}
+.address-box {
+    margin-top: 20px;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+}
+.address-box h3 {
+    margin: 0 0 10px;
 }
 </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Add Delivery Address</h1>
+    <h1>Order Summary</h1>
 
-    <div class="steps">
-        <div class="step active">Address</div>
-        <div class="step">Order Summary</div>
-        <div class="step">Payment</div>
+    <div class="product">
+        <img id="productImage" src="" alt="Product Image">
+        <div class="product-details">
+            <h2 id="productName">Selected Product</h2>
+            <p>Fast Delivery within 3-5 Days</p>
+            <div class="price" id="productPrice">₹0</div>
+        </div>
     </div>
 
-    <form id="addressForm">
-        <label for="fullName">Full Name</label>
-        <input type="text" id="fullName" required>
+    <div class="summary">
+        <div><span>Item Total</span><span id="itemTotal">₹0</span></div>
+        <div><span>Delivery Charges</span><span>₹0</span></div>
+        <div class="total"><span>Total Amount</span><span id="totalAmount">₹0</span></div>
+    </div>
 
-        <label for="mobile">Mobile Number</label>
-        <input type="tel" id="mobile" required>
+    <div class="address-box">
+        <h3>Delivery Address</h3>
+        <p id="addressDetails">Loading address...</p>
+    </div>
 
-        <label for="pincode">Pincode</label>
-        <input type="text" id="pincode" required>
-
-        <label for="city">City</label>
-        <input type="text" id="city" required>
-
-        <label for="state">State</label>
-        <select id="state" required>
-            <option value="">Select State</option>
-            <option>Rajasthan</option>
-            <option>Madhya Pradesh</option>
-            <option>Uttar Pradesh</option>
-            <option>Bihar</option>
-            <option>Delhi</option>
-            <option>Gujarat</option>
-            <option>Haryana</option>
-            <option>Maharashtra</option>
-            <option>Punjab</option>
-            <option>West Bengal</option>
-            <option>Telangana</option>
-            <option>Tamil Nadu</option>
-            <option>Karnataka</option>
-            <option>Kerala</option>
-        </select>
-
-        <label for="house">House No., Building Name</label>
-        <input type="text" id="house" required>
-
-        <label for="road">Road Name, Area, Colony</label>
-        <input type="text" id="road" required>
-
-        <button type="submit">Save Address</button>
-    </form>
+    <button id="payBtn">Pay Now</button>
 </div>
 
 <script>
-document.getElementById('addressForm').addEventListener('submit', function(e){
-    e.preventDefault();
+// Get product data from localStorage
+const selectedProduct = JSON.parse(localStorage.getItem("selectedProduct"));
+if (selectedProduct) {
+    document.getElementById("productImage").src = selectedProduct.image || "";
+    document.getElementById("productName").textContent = selectedProduct.name || "Your Product";
+    document.getElementById("productPrice").textContent = "₹" + selectedProduct.price;
+    document.getElementById("itemTotal").textContent = "₹" + selectedProduct.price;
+    document.getElementById("totalAmount").textContent = "₹" + selectedProduct.price;
+}
 
-    const addressData = {
-        fullName: document.getElementById('fullName').value,
-        mobile: document.getElementById('mobile').value,
-        pincode: document.getElementById('pincode').value,
-        city: document.getElementById('city').value,
-        state: document.getElementById('state').value,
-        house: document.getElementById('house').value,
-        road: document.getElementById('road').value
-    };
+// Get delivery address from localStorage
+const addressData = JSON.parse(localStorage.getItem("deliveryAddress"));
+if (addressData) {
+    document.getElementById("addressDetails").innerHTML = `
+        ${addressData.fullName}<br>
+        ${addressData.house}, ${addressData.road}<br>
+        ${addressData.city}, ${addressData.state} - ${addressData.pincode}<br>
+        Mobile: ${addressData.mobile}
+    `;
+}
 
-    // Save address data to localStorage
-    localStorage.setItem('deliveryAddress', JSON.stringify(addressData));
-
-    // Redirect to next page
-    window.location.href = "ordersummary.html";
+// Redirect to UPI Payment on click
+document.getElementById("payBtn").addEventListener("click", function() {
+    window.location.href = "upi://pay?pa=BHARATPE.8X0A0T8C8B85333@fbpe&pn=BharatPe%20Merchant&cu=INR&tn=Pay%20To%20BharatPe%20Merchant";
 });
 </script>
 
