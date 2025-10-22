@@ -6,148 +6,147 @@
 <title>Order Summary</title>
 <style>
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f5f5f5;
+  font-family: Arial, sans-serif;
+  background: #f1f3f6;
+  margin: 0;
+  padding: 0;
 }
 .container {
-    max-width: 500px;
-    margin: 20px auto;
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
+  max-width: 500px;
+  background: #fff;
+  margin: 30px auto;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
-h1 {
-    text-align: center;
-    font-size: 24px;
-    margin-bottom: 20px;
-    color: #2874f0;
+.progress {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  font-weight: bold;
 }
-.steps {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
+.progress span {
+  flex: 1;
+  text-align: center;
+  color: #555;
 }
-.step {
-    flex: 1;
-    text-align: center;
-    position: relative;
+.progress .active {
+  color: #2874f0;
+  border-bottom: 2px solid #2874f0;
+  padding-bottom: 4px;
 }
-.step::after {
-    content: '';
-    position: absolute;
-    top: 12px;
-    right: -50%;
-    width: 100%;
-    height: 2px;
-    background: #ccc;
-    z-index: -1;
+h2 {
+  text-align: left;
+  margin-bottom: 10px;
+  color: #333;
 }
-.step:last-child::after {
-    display: none;
+.product-box {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  border: 1px solid #e0e0e0;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 20px;
 }
-.step.active {
-    font-weight: bold;
-    color: #2874f0;
+.product-box img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  border-radius: 6px;
+  border: 1px solid #ddd;
 }
-.address, .products, .total {
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 15px;
-    margin-bottom: 15px;
+.product-details {
+  flex: 1;
 }
-.address p, .products p {
-    margin: 5px 0;
+.product-details h4 {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
 }
-.product-image {
-    text-align: center;
-    margin: 10px 0;
+.product-details p {
+  margin: 5px 0;
+  color: #777;
+  font-size: 14px;
 }
-.product-image img {
-    max-width: 100%;
-    border-radius: 8px;
+.price-box {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+.price-box h3 {
+  margin: 0;
+  color: #333;
+  font-size: 18px;
+}
+.price-item {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+  color: #555;
+}
+.price-item.total {
+  font-weight: bold;
+  color: #000;
 }
 button {
-    width: 100%;
-    background: #fb641b;
-    color: #fff;
-    padding: 12px;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+  background: #fb641b;
+  color: #fff;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  width: 100%;
+  font-size: 16px;
+  margin-top: 15px;
+  cursor: pointer;
 }
 button:hover {
-    background: #e55d1f;
+  background: #d35400;
 }
 </style>
 </head>
 <body>
-
 <div class="container">
-    <h1>Order Summary</h1>
+  <h2>Order Summary</h2>
+  <div class="progress">
+    <span>Address</span>
+    <span class="active">Order Summary</span>
+    <span>Payment</span>
+  </div>
 
-    <div class="steps">
-        <div class="step active">Address</div>
-        <div class="step active">Order Summary</div>
-        <div class="step">Payment</div>
+  <div class="product-box">
+    <img id="productImage" src="" alt="Product Image">
+    <div class="product-details">
+      <h4>iPhone 14 (128 GB) - Blue</h4>
+      <p>Seller: WinDhamaka Official</p>
+      <p>Qty: 1</p>
+      <p>Delivery by <b>Tomorrow</b></p>
     </div>
+  </div>
 
-    <div class="address">
-        <h3>Delivery Address</h3>
-        <p id="fullName"></p>
-        <p id="mobile"></p>
-        <p id="house"></p>
-        <p id="road"></p>
-        <p id="cityStatePincode"></p>
-    </div>
+  <div class="price-box">
+    <div class="price-item"><span>Item Price</span><span>₹799</span></div>
+    <div class="price-item"><span>Delivery</span><span style="color:green;">Free</span></div>
+    <div class="price-item total"><span>Total Amount</span><span>₹799</span></div>
+  </div>
 
-    <div class="products">
-        <h3>Products</h3>
-        <div class="product-image">
-            <img id="productImage" src="" alt="Product Image">
-        </div>
-        <p id="productName"></p>
-        <p id="quantity"></p>
-        <p id="pricePerItem"></p>
-    </div>
-
-    <div class="total">
-        <h3>Total Amount: ₹<span id="totalAmount"></span></h3>
-    </div>
-
-    <button id="payButton">Proceed to Payment</button>
+  <button id="proceedPayment">Proceed to Payment</button>
 </div>
 
 <script>
-// 1️⃣ Fetch delivery address from localStorage
-const address = JSON.parse(localStorage.getItem('deliveryAddress') || '{}');
+// पिछली पेज से प्रोडक्ट इमेज लोड करना
+const productImage = localStorage.getItem("selectedProduct");
+if(productImage){
+  document.getElementById("productImage").src = productImage;
+} else {
+  document.getElementById("productImage").src = "https://via.placeholder.com/150";
+}
 
-document.getElementById('fullName').innerText = address.fullName || '';
-document.getElementById('mobile').innerText = 'Mobile: ' + (address.mobile || '');
-document.getElementById('house').innerText = address.house || '';
-document.getElementById('road').innerText = address.road || '';
-document.getElementById('cityStatePincode').innerText = (address.city || '') + ', ' + (address.state || '') + ' - ' + (address.pincode || '');
-
-// 2️⃣ Fetch product/order details including image (sessionStorage)
-const orderDetails = JSON.parse(sessionStorage.getItem('orderDetails') || `{
-    "productName":"IPL Ticket",
-    "quantity":2,
-    "pricePerItem":500,
-    "totalAmount":1000,
-    "image":"https://iili.io/KSBQlLJ.png"
-}`);
-
-document.getElementById('productName').innerText = "Product: " + orderDetails.productName;
-document.getElementById('quantity').innerText = "Quantity: " + orderDetails.quantity;
-document.getElementById('pricePerItem').innerText = "Price per item: ₹" + orderDetails.pricePerItem;
-document.getElementById('totalAmount').innerText = orderDetails.totalAmount;
-document.getElementById('productImage').src = orderDetails.image;
-
-// 3️⃣ Redirect to Payment page
-document.getElementById('payButton').addEventListener('click', function(){
-    window.location.href = "payment.html";
+// बटन क्लिक पर Payment पेज पर भेजना
+document.getElementById("proceedPayment").addEventListener("click", ()=>{
+  window.location.href = "payment.html";
 });
 </script>
-
 </body>
 </html>
